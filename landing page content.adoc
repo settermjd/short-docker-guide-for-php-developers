@@ -1,0 +1,7 @@
+Don't just develop using Docker, but deploy with it too.
+
+Learn how to setup a development environment using Docker to develop your PHP applications and how to use the Docker ecosystem to deploy your applications as well.
+
+Learn how to setup a Docker-based development environment for developing, testing, and debugging your PHP applications, as well as how to use the Docker to deploy your applications as well.
+
+The book’s still being written, but you can still sign up to stay informed of its progress and to get it as soon as it’s ready.

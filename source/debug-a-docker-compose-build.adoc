@@ -1,0 +1,101 @@
+= How to Debug a Docker Compose Build
+
+If you're using docker-compose to build a Docker container setup and something's not working, here's a basic process you can follow to find out what happened, and get your containers up and running properly.
+
+To put this into greater context, recently https://matthewsetter.com/docker-development-environment/[I was trying to create a Docker development environment] for building a new Mezzio application.
+I'd created a basic container configuration, using the `php:7-apache` container and MariaDB and thought that everything should be working as expected.
+
+However, when I attempted to run the installer, the database hostname wasn't able to be resolved, so the installed failed.
+This seemed rather strange, as I didn't see anything strange in the console output (or so I thought) after I started the containers.
+
+The first thing I thought to do was to access bash on the webserver container to try and ping the database to see if it could be accessed.
+Sure enough, I wasn't able to.
+
+== Review the Docker Compose Configuration
+
+I thought that I must have misconfigured something.
+But on reviewing the configuration with a known working setup, nothing seemed out of the ordinary.
+However, the database server clearly wasn't working, for some reason.
+
+== Check the State of Each Container
+
+So I decided to have a quick look at its state, by running `docker-compose ps`.
+On doing so, I saw the following output;
+note `Exit 1` as the state for the database container.
+
+While not that clear, nor insightful, it means that the container wasn't able to start successfully.
+As the webserver's state is set to `Up`, it is running properly.
+
+[source,console]
+----
+        Name                      Command               State          Ports
+-----------------------------------------------------------------------------------
+core1000_database_1    docker-entrypoint.sh mysqld      Exit 1
+core1000_webserver_1   docker-php-entrypoint apac ...   Up       0.0.0.0:80->80/tcp
+----
+
+NOTE: To get the status of a particular container, add its name to the end of the command.
+For example: `docker-compose ps database`.
+
+== What Do the Logs Say?
+
+Given that the database container had exited prematurely, it was time to get more detailed information about the problem that caused this to happen.
+To do that, I needed to find out what the logs contained.
+
+The reason why is that this is not so different from any other form of debugging.
+If you want to know what's going on, the best place to look is the logs.
+They contain information such as ports already being in use, server misconfiguration, and so on.
+
+To have a look at the logs for the database container, I used the command: 
+
+[source,console]
+----
+docker-compose logs --follow database
+----
+
+TIP: You don't have to include the `--follow` flag.
+But I decided to, as I wanted to reload the page a few times and see the output scroll by, instead of having to call the command repeatedly.
+
+On doing so, here's what I saw:
+
+[source,console]
+----
+database_1   | error: database is uninitialized and password option is not specified
+database_1   |   You need to specify one of MYSQL_ROOT_PASSWORD, MYSQL_ALLOW_EMPTY_PASSWORD and MYSQL_RANDOM_ROOT_PASSWORD
+----
+
+== Fix the Problem, Rebuild the Containers, and Check Again
+
+Turns out, I'd almost configured the containers correctly, but had forgot to configure a mandatory setting for the MariaDb container.
+Given that, I added a value for `MYSQL_ROOT_PASSWORD`, saved the file and ran `docker-compose up -d --build database` to rebuild and restart the database container.
+
+This time, I paid more careful attention to the console output and definitely saw nothing out of the obvious.
+However, just to be sure, I ran `docker-compose ps` again, to ensure that both containers were up and running.
+
+On doing so, sure enough, everything was working as expected.
+Given that, I reloaded the containers and, after a minute or so, had a working installation ready to use.
+Achievement unlocked!
+
+[source,console]
+----
+        Name                      Command               State           Ports
+--------------------------------------------------------------------------------------
+core1000_database_1    docker-entrypoint.sh mysqld      Up      0.0.0.0:3306->3306/tcp
+core1000_webserver_1   docker-php-entrypoint apac ...   Up      0.0.0.0:80->80/tcp
+----
+
+== In Conclusion
+
+While this hasn't been the most in-depth of guides on how to debug a Docker configuration, built with Docker Compose, it's covered the essentials.
+
+It's covered how to determine if a container isn't working and how to find out more detailed information so that you can correct problems.
+
+To summarise, follow these steps to debug a Docker Compose-based container configuration:
+
+ Use `docker-compose ps` to see the state of all the containers
+ Use `docker-compose logs --follow` to inspect the logs to find out what errors are occurring
+ Fix the problem
+ Rebuild and restart the containers with `docker-compose up -d --build`
+ Lather, rinse, repeat
+
+If you need any further information, check out https://docs.docker.com/compose/reference/[the official Docker Compose documentation].

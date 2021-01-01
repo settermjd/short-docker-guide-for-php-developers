@@ -1,0 +1,289 @@
+= How To Build a Local Development Environment Using Docker
+
+Building a local development environment which mirrors production hasn't, historically, been an easy task.
+But with Docker, it's become, virtually, trivial.
+Come learn how to setup a local development environment using Docker for developing Zend Expressive (and other PHP) applications.
+
+Developers, Developers, Developers.
+It's not easy to be one;
+am I right?
+
+While it's a challenge which we love, it's still a tough gig.
+There are so many things to know;
+from frameworks and software design patterns to deployment and scaling techniques.
+Our time's stretched thin staying abreast of everything.
+
+But somehow we manage.
+Somehow, we keep our heads above water and survive.
+Given all this, the last thing we want to do is waste our precious time on anything which isn't productive.
+
+And something which isn't productive is setting up a development environment.
+Why in this modern day and age is setting up a development environment still such a complicated process?
+
+== Creating Local Development Environments Is Challenging
+
+Why is it still so hard to get one setup that works, that does what you need, and that matches the deployment environment's of testing, staging, production and so on?
+
+Here's what I mean.
+We start off using the native tools available on our operating system of choice.
+We next likely start using LAMP, MAMP, and WAMP stacks.
+
+After we've exhausted these, we usually progress to Vagrant & VirtualBox VM's—after learning one (or more) provisioning tools, such as Chef, Puppet, or Ansible.
+
+By now our development environments have grown quite sophisticated.
+But the overhead of both building and maintaining them has increased significantly also.
+
+Wouldn't it be easy if we could set them up, but with only a small investment of time and effort?
+I think you know where I might be heading with this.
+
+You can.
+Yes, that's right, you can, with Docker.
+
+== Enter Docker
+
+image::docker_logo.png[Docker Logo]
+
+That's right - https://www.docker.com/)[Docker].
+Docker was initially released back in March of 2013 by a hosting company called dotCloud.
+dotCloud had been using the tool internally to make their lives easier managing their hosting business.
+
+https://en.wikipedia.org/wiki/Docker_(software)[To quote Wikipedia:]
+
+[quote]
+Docker is an open-source project that automates the deployment of Linux applications inside software containers.
+
+Here's a longer description:
+
+[quote]
+Docker containers wrap up a piece of software in a complete filesystem that contains everything it needs to run: code, runtime, system tools, system libraries—anything you can install on a server.
+This guarantees that it will always execute the same, regardless of the environment it is running in.
+
+== Docker Is Simpler
+
+Now you might be thinking that this all sounds similar to everything else you've used, such as a LAMP stack or a Vagrant/VirtualBox VM.
+
+In a way it is.
+But it's also a lot less resource and time intensive.
+As the quote above summarizes, Docker contains—and uses—*only* what it needs to run your application—nothing more.
+
+You're not building a big virtual machine which will consume a good chunk of your development machine's resources.
+You don't have to learn—and write—massive configuration setups to build a basic, working, setup.
+
+You don't need to do much at all to get your up and running.
+Docker allows you to build your application infrastructure, as you would your code.
+You determine the parts and services you need and stack them together like Lego blocks.
+
+If you need to change your web server or database server, then switch the current one out for another.
+Need to add a caching, logging, or queueing server?
+Add it into the mix and keep on going.
+It is that simple.
+
+Sound enticing?
+I hope so.
+
+== How to Build a Development Environment with Docker
+
+If you're keen to find out the latest, and best, way to create a development environment, one which you can be up and running within less than 20 minutes, let's get started.
+
+In this tutorial I'm going to show you how to build a local development setup, using Docker, to run a Zend Expressive app, https://matthewsetter.com/zend-expressive-introduction[based on the Zend Expressive Skeleton Installer].
+
+NOTE: It would likely work for any Zend Expressive, or PHP, application for that matter.
+
+Here's how it will work;
+we'll have one container for PHP, one container for Nginx, and one container for MySQL.
+Our configuration will bind them altogether so that, when finished, we can run one command line script to build it, boot it, and view it locally on port 8080.
+
+Let's begin.
+
+NOTE: This is not an extensive tutorial on Docker.
+If you want to learn all there is to know, I strongly encourage you to check out either https://learningcontainers.com/?utm_source=masterzendframework&utm_medium=link&utm_campaign=learningcontainers[Learning Containers], by Chris Tankersley, http://shippingdocker.com/[Shipping Docker] by Chris Fidao, or buy https://leanpub.com/dockerfordevs?utm_source=masterzendframework&utm_medium=link&utm_campaign=dockerfordevs[Docker for Developers].
+They're all excellent resources!
+
+== Installing Docker
+
+image::docker-install-options.png[Docker Install Options]
+
+I'll assume that you don't have Docker installed on your local machine.
+If not, and you're using a Linux distribution, then use its package manager to install Docker.
+
+If you're not using Linux, then grab a copy of https://docs.docker.com/docker-for-mac/[Docker for Mac] or https://www.docker.com/products/docker#/windows[Docker for Windows], depending which platform you're using.
+The installers do an excellent job of making the setup pretty painless.
+
+With Docker installed, we're now able to start building our setup.
+
+== The Docker Setup
+
+Most PHP applications, at their most basic, are composed of three parts:
+
+* A web server (commonly Nginx or Apache)
+* A PHP runtime (most often using PHP-FPM these days)
+* A database server (usually MySQL, PostgreSQL, or SQLite)
+
+This can be visualized in the illustration below.
+Sure, there are a host of other components, such as ElasticSearch, caching, and logging servers, but I'm sticking to the basics.
+
+image::docker-local-development-environment-simple-illustration.jpg[Visualisation of a location development environment using Docker]
+
+Our setup's going to mirror that, having a container for each component which we've listed above.
+Let's start with the web server configuration.
+
+== The Web Server Container
+
+In the root directory of your project, create a new file, called `docker-compose.yml`.
+In there, add the following configuration:
+
+[source,yaml]
+----
+version: '2'
+
+volumes:
+  database_data:
+    driver: local
+
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - 8080:80
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    volumes_from:
+      - php
+----
+
+The configuration starts off by specifying that we're using https://docs.docker.com/compose/compose-file/#/version-2[version 2 of the Docker Compose file format].
+This is important as using version 2 requires less work on our part, in comparison with version 1.
+
+It next sets up http://container-solutions.com/understanding-volumes-docker/[a persistable filesystem volume], which will be used later in the MySQL container.
+This is important to be aware of as, by default, filesystems in a Docker container are setup to be read-only.
+
+Given that, any changes made aren't permanent.
+When a container restarts, the original files will be restored and any new files will be removed.
+Not a great thing when working with databases, or other storage mechanisms.
+
+We next define an element called `services`.
+This element lists the definitions of the three containers which will make up our build, and start defining the Nginx container.
+
+What this does is to create a container called `nginx`, which can be referred to by the other containers using the hostname `nginx`.
+It will use the latest, official, Docker Nginx container image as the base for the container.
+After that, we map port 80 in the container to port 8080 on our host machine.
+This way, when we're finished, we'll be able to access our application by navigating to `+http://localhost:8080+`.
+
+It next copies `./docker/nginx/default.conf` from the local filesystem to `/etc/nginx/conf.d/default.conf` in the container's filesystem.
+default.conf provides the core configuration for Nginx.
+To save space, I've not included it here.
+However, you can find it https://raw.githubusercontent.com/settermjd/docker-for-local-development/master/docker/nginx/default.conf[in the repository for this tutorial].
+
+Finally, the container gets access to a filesystem volume in the PHP container, which we'll see next.
+This will let us develop locally on our host machine, yet use the code in the Nginx server.
+
+== The PHP Container
+
+The configuration for the PHP container, below, is rather similar to that of the Nginx container.
+
+[source,yaml]
+----
+php:
+  build: ./docker/php/
+  expose:
+    - 9000
+  volumes:
+    - .:/var/www/html
+----
+
+You can see that it starts off by naming the container `php`, which sets the container's hostname.
+The `build` directive tells it to use a configuration file, called `Dockerfile`, located in `./docker/php` which contains the following instructions:
+
+[source,yaml]
+----
+FROM php:7.0-fpm
+
+RUN docker-php-ext-install pdo_mysql \
+    && docker-php-ext-install json
+----
+
+This states that our container is based on the official PHP 7 image from Docker Hub, which uses PHP-FPM.
+I'm keeping things as official as possible.
+
+In addition to using the default image, I've also added some PHP extensions, by calling the `docker-php-ext-install` command.
+Specifically, I'm ensuring that `pdo_mysql` and `json` are available in the container.
+
+NOTE: This command does not install an extension's dependencies.
+It only installs the extension, if the dependencies are available.
+
+Going back to docker-compose.yml, it next exposes the container's port 9000.
+If this is your first time reading about Docker, that might not make a lot of sense.
+What it's doing is exposing the container's port 9000, a lot like when we allow access to a port through a firewall.
+
+If you've had a look at `./docker/nginx/default.conf` in the source repository, you'll have see that it contains the directive: `fastcgi_pass php:9000;`.
+This allows the Nginx container to pass off requests to PHP in the PHP container.
+
+Lastly, we're mapping a directory on our development machine to a directory in the container, for use in the container.
+This will also be available in the Nginx container, thanks to the `volumes_from` directive, which we saw earlier.
+
+This has the effect of sharing your local directory with the container, rather like https://www.vagrantup.com/docs/synced-folders/[Vagrant's shared folders], which makes local development quite efficient.
+When you make a change in your development environment, whether in a text editor, or an IDE such as PhpStorm, the changes will be available in the container as well.
+There is no need to manually copy or sync files between your development environment and the container.
+
+Thanks to <<comment-3315897090,Tom Lobato>> and <<comment-3064099019,Rutvik Prajapati>> for pointing out that I wasn't as clear here as I should have been.
+
+== The MySQL Server
+
+Now, for the final piece, the MySQL container.
+
+[source,yaml]
+----
+mysql:
+  image: mysql:latest
+  expose:
+    - 3306
+  volumes:
+    - database_data:/var/lib/mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: secret
+    MYSQL_DATABASE: project
+    MYSQL_USER: project
+    MYSQL_PASSWORD: project
+----
+
+As with the other containers, we've given it a name (and hostname): `mysql`.
+We are using the official MySQL container image, from https://hub.docker.com/[DockerHub] as the foundation for it and exposing port 3306, the standard MySQL port, which was referred to in the PHP container.
+
+Next, using the `volumes` directive, we're making any changes in `/var/lib/mysql`, where MySQL will store its data files, permanent.
+We then finish up setting four environment variables, which the MySQL server needs.
+These are for the root MySQL password, the name of the database to create, and an application username and password.
+
+== Booting the Docker Containers
+
+Now that we've configured the containers let's make use of them.
+From the terminal, in the root directory of your project, run the following command:
+
+----
+docker-compose up -d
+----
+
+What this will do, is to look for `docker-compose.yml` in the same directory for the instructions it needs to build the containers, and then start them.
+After they start, Docker will go into daemon mode.
+
+When you run this, you'll see each container being created and started.
+If this is the first time that you've created and launched the containers, then the base images will have to be first downloaded, before the containers can be created on top of them.
+
+This may take a few minutes, based on the speed of your connection.
+However, after the first time, they'll usually be booted in under a minute.
+
+With them created, you're ready to use them.
+At this point, in a browser, navigate to `http://localhost:8080`, where you'll see your application running, which renders https://matthewsetter.com/zend-expressive-introduction[the standard Zend Expressive Skeleton Project home page].
+
+== Conclusion
+
+That's how to use Docker to build a local development environment for Zend Expressive (or any PHP) application.
+We have one container which runs PHP, one which runs Nginx, and one which runs MySQL;
+all able to talk to each other as needed.
+
+You could say that we can now build environments a lot like we can build code—in a modular fashion.
+It's a fair way of thinking about it.
+Why shouldn't we be able to do so?
+
+I appreciate this has been quite a rapid run-through.
+But it has covered the basics required to get you started.
+We haven't looked too deeply into how Docker works, nor gone too far beyond the basics.
