@@ -1,0 +1,46 @@
+" Press ? for help
+
+.. (up a dir)
+</Books/mezzio-essentials/
+▸ bin/
+▸ build/
+▸ expressive-essentials-skeleton-app/
+▸ gradle/
+▸ lib/
+▸ notes/
+▸ promotion/
+▾ source/
+  ▸ build/
+  ▸ resources/
+    add-database-support.adoc*
+    book-attributes.adoc
+    book.adoc*
+    conclusion.adoc*
+    corrigendum.adoc*
+    create-an-application-manually.adoc*
+    create-an-application-using-the-skeleton-installer.adoc*
+    dedication.adoc*
+    introduction.adoc*
+    mezzios-core-components.adoc*
+    organising-middleware.adoc*
+    thankyou.adoc*
+    what-is-a-micro-framework.adoc*
+    what-is-mezzio.adoc*
+▸ styles/
+▸ test-install-flat/
+▸ test-install/
+▸ to be removed/
+  build.gradle
+  build.log
+  build.properties
+  build.xml
+  EDITORS.adoc
+  gradlew*
+  gradlew.bat
+  Makefile
+  metadata.xml
+  README.md
+  settings.gradle
+  source.zip
+  TODO.md
+  Update TODO.ods

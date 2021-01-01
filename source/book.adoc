@@ -1,0 +1,36 @@
+:front-cover-image: image:artwork/cover3.png[]
+:book_name: Docker: From Development to Deployed!
+= {book_name}
+Matthew Setter <matthew@matthewsetter.com>
+v1.0, 2020-02-10
+:experimental:
+:hide-uri-scheme:
+:icon-set: octicon
+:icons: font
+:idprefix: 
+:idseparator: -
+:imagesdir: ./resources/images/
+:leveloffset: +1
+:source-highlighter: coderay
+:toc:
+:toclevels: 2
+
+// Book attributes
+//include::book-attributes.adoc[]
+
+// Book chapters
+//include::dedication.adoc[]
+
+//include::introduction.adoc[]
+
+include::local-development-environment.adoc[]
+
+include::debug-a-docker-compose-build.adoc[]
+
+include::build-a-docker-test-environment.adoc[]
+
+include::from-development-to-deployment.adoc[]
+
+//include::conclusion.adoc[]
+
+//include::corrigendum.adoc[]

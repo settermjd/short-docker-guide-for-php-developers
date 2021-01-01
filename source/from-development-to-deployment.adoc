@@ -1,0 +1,479 @@
+= How to Go From Development to Deployment with Docker
+
+//Want to know how to both containerise an application and deploy it to a production environment?
+//In this mammoth tutorial, I'll show you all the steps involved, and provide background information along the way, so you can build on what you'll learn.
+
+In my search to learn how to use Docker as a complete development solution, I've found a range of tutorials which discuss or walk through some part of the process.
+
+Sadly, no one tutorial contains all the steps necessary to step you through containerizing an (existing) application through to deploying the said application in a production environment.
+Given that, my aim in writing this tutorial is to show you how to do this.
+
+The challenge in doing so, unfortunately, is that there's a lot to learn and absorb.
+Here's why:
+
+. So that you know the steps involved.
+. So that those steps _make sense_.
+. Perhaps most importantly—so that you can _continue to educate yourself_ about the tools, different tool combinations, tool options, configuration settings, and so on.
+
+So this is going to be a lengthy post.
+However, I've aimed to provide the most direct path to your first production deployment, as well as to structure it so that it's easy to work through or navigate to the specific part you need.
+
+== Tutorial Prerequisites
+
+To follow along with this tutorial, you're going to need the following, three, things:
+
+* A https://www.digitalocean.com/[DigitalOcean] account
+* A https://hub.docker.com/[Docker Hub] account
+* https://www.docker.com/community-edition[Docker] installed on your development machine
+* An existing project that you want to deploy using Docker
+
+Make sure you have them before you go any further.
+
+== What You Need To Do (Or the tl;dr version)
+
+If you're looking for the quick version of the article, this is it.
+At its core to containerise and deploy an application, there are only four steps involved.
+These are:
+
+. Create & Build the Container
+. Store the Image in an Accessible Registry
+. Build a Deployment Configuration
+. Make the Deployment
+
+With that said, here is some greater context and understanding of the steps.
+As I've come to understand it, using Docker, in essence, comes down to two essential parts:
+
+. Create a build image
+. Use that image in a deployed configuration
+
+This way, in contrast to what I suggested in https://matthewsetter.com/docker-development-environment/[the post on creating a development environment using Docker], an image can be used across multiple projects, and not be tied to only one.
+
+NOTE: This may be painfully obvious to some, but at first it wasn't to me.
+For those who thought the same as I did, I hope this helps.
+It's rather like writing maintainable code if you think about it.
+
+{{< partial "inline-book-promotion" >}}
+
+== Create & Build the Container
+
+OK, let's get started with part one: creating and building the container, specifically the creating part.
+
+=== Create the Container
+
+In the root directory of your project, create a new file called `Dockerfile`, where we'll store the instructions that Docker will use to build our container.
+In there, add the following code.
+Then we'll step through what it does.
+
+[source,dockerfile]
+----
+FROM php:7.0-apache
+WORKDIR /var/www/html
+COPY ./ /var/www/html/
+COPY ./docker/default.conf /etc/apache2/sites-enabled/000-default.conf
+EXPOSE 80
+
+RUN docker-php-ext-install pdo_mysql \
+    && docker-php-ext-install json
+----
+
+We start with the `FROM` statement.
+This statement specifies the container on which _our_ container is built.
+I've chosen `php:7.0-apache`.
+This is so that the PHP run-time and web server are combined into one container.
+Doing so avoids the need for inter-container communication, along with any unnecessary configuration effort on our part.
+
+Then, we use `WORKDIR` to set the working directory, or the base path within the container, where other commands operate relative to if relative paths are used.
+
+The two `COPY` commands are good examples.
+These commands copy:
+
+* The contents of the current working directory into the container's `/var/www/html` directory.
+* A custom Apache configuration file in place of the container's existing one.
+The reason for doing so is that the container's default Apache configuration uses `/var/www/html` as the document root.
+However, the example code I'm working with needs it to be `/var/www/html/public`.
+Set any other directives that you feel the need to use.
+
+For the sakes of complete transparency, here's the configuration that I used.
+It's merely a copy of the configuration inside the container with the `DocumentRoot` directive's setting changed.
+
+[source,apache]
+----
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/html/public
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+----
+
+Next, we set the `EXPOSE` command, which exposes port 80 in the container.
+This is done so that the container can be communicated with, no matter which host its contained in (which may be a local development machine or a remote host, such as on DigitalOcean).
+
+Finally, we use the `RUN` command to install two PHP extensions;
+`pdo_mysql` and `JSON`.
+We could add any number of other extensions, install any number of packages, and so on.
+However, for this example, that's all we need.
+
+For the container, we're now done.
+It has all that it needs to support the application which we're going to place inside of it.
+
+=== Build the Container
+
+We now need to build it.
+To do that, we use the `docker build` command, supplying two arguments to it.
+These are:
+
+. The name of the container
+. The contents (or context) of the container
+
+Here's the command that I'll use to build the container:
+
+[source,console]
+----
+docker build -t basicapp .
+----
+
+This gives the container the name `basicapp` (which is important, as we'll need that in the later sections, and specifies that the local directory is the content for the container.
+When you run the command, you'll see output similar to the following:
+
+[source,console]
+----
+Sending build context to Docker daemon  34.3 kB
+Step 1/6 : FROM php:7.0-apache
+ ---> 23f9c84560a6
+Step 2/6 : WORKDIR /var/www/html
+ ---> Using cache
+ ---> 6fd5d5375996
+Step 3/6 : COPY ./ /var/www/html/
+ ---> 3f4313a5bb2d
+Removing intermediate container cc38a34f844b
+Step 4/6 : COPY ./docker/default.conf /etc/apache2/sites-enabled/000-default.conf
+ ---> ad8ba9e7bf7f
+Removing intermediate container ac39c49311ad
+Step 5/6 : EXPOSE 80
+ ---> Running in 4c71b935da37
+ ---> eb836808c859
+Removing intermediate container 4c71b935da37
+Step 6/6 : RUN docker-php-ext-install pdo_mysql && docker-php-ext-install json
+ ---> Running in 25ffa117cf19
++ cd pdo_mysql
++ phpize
+----
+
+There, you can see that it's running through all the commands in `Dockerfile`, creating our container, which is, in effect, a customised version of the base container: `php:7.0-apache`.
+All being well, the last piece of output that you'll see is something similar to:
+
+[source,console]
+----
+Successfully built 51cc061b52d8
+----
+
+We can doubly confirm that the container's ready, by now running the command `docker images basicapp`.
+This should result in output similar to the following:
+
+[source,console]
+----
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+basicapp            latest              51cc061b52d8        3 minutes ago       390 MB
+----
+
+Note that the size of the container is quite large.
+I could have chosen to use a smaller base container, such as one based on Alpine Linux.
+I've deliberately not because the container I've chosen works well for a tutorial.
+
+Now that the image is successfully built, we need to test that it works, just like we'd test our code.
+We can do this by running it.
+We don't need a complicated setup to do that, just a container and Docker, both of which we have.
+
+To do so, run the following command
+
+[source,console]
+----
+docker run -p 2000:80 basicapp
+----
+
+This starts the container, mapping the port 80 in the container to port 2000 on our host, which is our local machine.
+As the container's not too sophisticated, it should boot quite quickly.
+
+When the console output's stopped scrolling, open your browser to `+http://localhost:2000+`, and behold the majesty, _the grandeur_, *the sheer brilliance* that is the output of our app.
+
+image::deploying-with-docker-running-container.png[Deploying the running container with Docker]
+
+OK, it's a text string.
+But it works.
+Given that, use kbd:[CTRL+C] to end the process, as we no longer need to run it locally.
+
+== Store the Image in an Accessible Registry
+
+It's now time to store the image so that any deployment configuration can use it.
+To do that we have to store it in a container registry.
+This is where the Docker Hub account listed in the article's prerequisites comes in.
+
+To do so, we have first to log in, so that we're authenticated to use the account.
+We do that by running `docker login`, providing our Docker Hub username and password when prompted.
+After successfully logging in, we need to do two things:
+
+. https://docs.docker.com/engine/reference/commandline/tag/=usage[Tag] our new container (which is similar to how you'd tag a release)
+. https://docs.docker.com/engine/reference/commandline/push/[Push] it to our Docker Hub account
+
+=== Tag an Image
+
+To tag the image, run the following commands:
+
+[source,console]
+----
+docker tag basicapp settermjd/basicapp:0.0.1
+----
+
+Reading through the command from left to right, we pass:
+
+. The name of the image to tag
+. Our Docker Hub username and the name that we'll store our image under
+. A tag name
+
+I strongly encourage you to follow https://semver.org[semantic versioning] when choosing tag names—unless you want to cause pain and heartache for yourself later.
+
+So I'm storing my `basicapp` image, in my account, as `basicapp`, and giving it the tag `0.0.1`.
+Nothing spectacular, but it's clean and tidy.
+It's also clear that this is the very first version of my container.
+
+=== Push the Image to Docker Hub
+
+With that done, we now need to push the image.
+As you _might_ expect, we'll use the `docker push` command to do that.
+This time, as you can see in the command below, we pass the `<account>/<imagename>:<tagname>` combination to docker push.
+
+[source,console]
+----
+docker push settermjd/basicapp:0.0.1
+----
+
+This will store the image in our account under the name `basicapp` with the tag `0.0.1`.
+If you want to be sure, login to your account and see that it's now listed there as a public container in your repository.
+
+== Build a Deployment Configuration
+
+Believe it or not, we're almost done!
+Now we need to build a deployment configuration so that we can deploy our container.
+To do that, we'll create a `docker-compose.yml` file, as you can see below.
+
+[source,yaml]
+----
+version: '3'
+services:
+  web:
+    image: settermjd/basicapp:0.0.1
+    deploy:
+      replicas: 5
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 50M
+    ports:
+     —"80:80"
+----
+
+If you're not familiar with the format, here's what's happening.
+
+It's using version 3 of https://docs.docker.com/compose/compose-file/[the docker-compose file format] and lists one service (or container) in the configuration, called "web".
+This is also the internal hostname of the container;
+something we don't need to think about again in the tutorial.
+
+To the `image:` element, we supply the name of the container which we supplied to `docker push` previously.
+Here, we are stipulating the image that the service will use, and it's version.
+Appreciate the flexibility that this statement represents and how using an image, instead of a direct configuration as we did in the earlier tutorial, gives us many options.
+
+In the `deploy:` element, we specify the deployment options.
+We're requesting five replicas of our container to be created in the deployment, which will be transparently used in a round-robin fashion.
+Then, we're imposing resource limits on the containers, setting them to use no more than 1 CPU and to have a maximum memory of 50MB.
+
+These limits are somewhat arbitrary, purely there for educational purposes.
+Make sure you check out the resource limits documentation for more information on what's available.
+
+Finally—and one of the most critical lines in the configuration, without which the application won't be accessible—is the `ports:` element.
+This binds port 80 on the container, to port 80 on the host.
+
+As containers work within a host, when we deploy them, if we don't do this, they won't be accessible from the outside world.
+So this ensures that requests to port 80 to the IP of the host is passed on to port 80 of the container.
+
+== Make the Deployment
+
+All right, the last stage!
+
+Here, we need to do two things:
+
+. Create the host into which we'll put our container configuration
+. Deploy the configuration and check that it works
+
+To do this, you're going to need an API token from your DigitalOcean account.
+To get this, after logging in to the DigitalOcean dashboard, click on "*API*" (1), and click "*Generate New Token*" (2), as you can see in the image below.
+
+image::digitalocean-generate-api-token.png[Generate a DigitalOcean API token]
+
+For the sake of simplicity, copy the token and store it as an environment variable in your shell, by running:
+
+[source,console]
+----
+export DO_TOKEN=<your generated token>
+----
+
+With that done, you're ready to create your remote host.
+For this, we'll need the `docker-machine` command.
+
+Docker-machine creates and manages machines running Docker, in this case, a DigitalOcean droplet.
+It's not going to be anything fancy, just a standard droplet with 1GB of memory.
+To create it, run the command below.
+
+[source,console]
+----
+docker-machine create \
+  --driver=digitalocean \
+  --digitalocean-access-token=$DO_TOKEN \
+  --digitalocean-size=1gb \
+  basicapp
+----
+
+Here, we're using https://docs.docker.com/machine/drivers/digital-ocean/#usage[the DigitalOcean driver], specifying the API token to authenticate against our account, and specifying the disk size, along with a name for the droplet.
+We could also specify a number of other options, such as _region_, _whether to enable backups_, _the image to use_, and whether to _enable private networking_.
+
+It will take a little while to complete, and you should see output similar to the following, but it shouldn't be more than a few minutes.
+
+[source,console]
+----
+Running pre-create checks...
+Creating machine...
+(basicapp) Creating SSH key...
+(basicapp) Creating Digital Ocean droplet...
+(basicapp) Waiting for IP address to be assigned to the Droplet...
+Waiting for machine to be running, this may take a few minutes...
+Detecting operating system of created instance...
+Waiting for SSH to be available...
+Detecting the provisioner...
+Provisioning with ubuntu(systemd)...
+Installing Docker...
+Copying certs to the local machine directory...
+Copying certs to the remote machine...
+Setting Docker configuration on the remote daemon...
+Checking connection to Docker...
+Docker is up and running!
+To see how to connect your Docker Client to the Docker Engine running on this virtual machine, run: docker-machine env basicapp
+----
+
+When it's finished, we then have to ensure that any commands we run from now on are run on the remote host, not on our local development machine.
+To do that, we set several environment variables (four to be specific).
+These are:
+
+* `DOCKER_TLS_VERIFY`
+* `DOCKER_HOST`
+* `DOCKER_CERT_PATH`
+* `DOCKER_MACHINE_NAME`
+
+We could do all this by hand, but there's no need to.
+The script to do that is provided in the last line of the droplet creation process' output, and should be:
+
+[source,console]
+----
+docker-machine env basicapp
+----
+
+Use the `eval` command, as in the sample below, to run it and update your environment settings.
+
+[source,console]
+----
+eval $(docker-machine env basicapp)
+----
+
+With that done, we're down to the last step: deploying to the remote host.
+To do that we need, _yet_, another Docker command.
+Yes, there are a lot of them if you're thinking that.
+
+The command is `docker swarm`.
+https://docs.docker.com/swarm/overview/[Docker swarm] is Docker's clustering functionality which, to quote the documentation:
+
+[quote]
+Turns a pool of Docker hosts into a single, virtual Docker host
+
+However, we only have one host you may be thinking.
+And right you are.
+However, if you want to build your deployment into a cluster later, it helps to know about this command.
+It's a little outside the scope of this tutorial to discuss it in-depth.
+So make sure you check out the docs for further information.
+
+To get the swarm ready, we first have to initialise it.
+We do that by running the command below.
+
+[source,console]
+----
+docker swarm init --advertise-addr <droplet IP address>
+----
+
+You can see that I've passed an IP address to the `--advertise-addr` switch.
+This was necessary because the droplet exposed two IP addresses, and swarm wasn't sure which one to use.
+
+Now that the swarm is ready, it's time to add a host to it.
+To do that, we call another command, which you can see below.
+
+[source,console]
+----
+docker stack deploy --compose-file docker-compose.yml basicapp
+----
+
+Docker stack manages https://docs.docker.com/docker-cloud/apps/stack-yaml-reference/[Docker stacks].
+A stack is:
+
+[quote]
+A collection of services that make up an application in a specific environment.
+
+*Are you confused by all the terms yet?*
+
+So, to recap just briefly, the swarm is the collection of hosts that will run our application.
+The stack is the application, made up of a collection of services, that make up our application.
+There's method in the madness;
+it just takes a little while to get your head around it.
+
+This command will take a little while to complete building the container on the remote host.
+It will ensure that there are five containers and that each one has access to no more than 1 CPU and 50MB of memory.
+You can watch it building if you periodically run `docker stack services basicapp`.
+This lists the services in the stack.
+
+Here's an example output from when I built mine:
+
+[source,console]
+----
+ID            NAME          MODE        REPLICAS  IMAGE
+nvprlz81p2ne  basicapp_web  replicated  3/5       settermjd/basicapp:0.0.1
+----
+
+You can see that there's one service, "[.code]``basicapp_web``", based on the image that we created earlier, and it has three of the five replicas that we specified ready to go.
+The name is the service name from the `docker-compose.yml` file, prefixed with the stack name and an underscore.
+
+When it's done, we'll then be able to access our deployed application!
+If you've not assigned a CNAME record to your new droplet, then grab it's IP address from the Droplets list, and navigate to that IP in your browser of choice.
+
+And here's what mine looks like:
+
+image::digitalocean-deployed-application.png[The deployed Docker Stack application on DigitalOcean]
+
+== In Conclusion
+
+And that's the end of the tutorial.
+We've covered how to containerise an application, how to build a deployment configuration using Docker Swarm, and deploy it to a non-development environment using Docker Stack.
+Yes, there have been quite a number of steps, and perhaps too many Docker commands—_my pet peeve with Docker_.
+
+*But, we're there!*
+
+I've taken some shortcuts to keep the post as short as possible.
+And there are so many things that I've not covered, such as:
+
+* Creating a more sophisticated image or deployment configuration
+* Considered the security implications of the container we've deployed
+* Considered such requirements such as how to roll back a release
+* Seen how to update an existing release
+* Seen how to destroy an existing swarm
+
+However, for a simple example, it's sufficient.
+Ideally, I'd like to expand on this post at some stage.
+However, I didn't want to overwhelm you today.
+
+I hope that you've been able to follow the instructions here successfully, and in the process learned a lot.
+If you've had any problems, want to know more, or want to suggest other ways to do it, add your feedback in the comments.

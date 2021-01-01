@@ -1,0 +1,87 @@
+= Deploying With Docker
+:source-language: console
+
+A little while ago, I wrote two parts in a multi-part series about using Docker.
+As someone who's reasonably new to Docker—*and* been bitten by the Docker bug—I wanted to share what I'd learned, in the hopes that others may benefit.
+
+The first part, link:/docker-development-environment/[How To Build a Local Development Environment Using Docker], details how to start from scratch, using Docker's docker-compose command and accompanying file-format, to build a configuration consisting of three containers.
+
+The second part, link:/how-to-build-a-docker-test-environment/[How to Build a Docker Test Environment], followed up part one and showed how to run tests in a Docker container.
+
+I indicated in the first part that there'd be two final parts to the series;
+the third part would show how to dockerise a Zend Framework application, and the final part would show how to create a continuous deployment pipeline.
+
+I'd say that it's fair to expect that by the time you'd stepped through all four parts in the series, you'd have more than enough knowledge to get up and running, and be able to learn all that you still needed to know.
+Right?
+
+Trouble was, I'd not actually deployed an application to production using Docker.
+But, there's always things which we don't know.
+And when we find ourselves in that situation, we go out and learn all we need to know.
+
+So that's what I did.
+Over the course of the last week, I've been reading through the Docker documentation, reading blog posts of various people, and also calling on people I know for feedback and advice.
+
+After collating all of this advice in my head, I decided to attempt to deploy an existing application which I'm working on to DigitalOcean.
+
+The main reason for this is that I'm already a customer and find their setup very well built, well documented, and quite forward thinking.
+And, as Docker has built-in support for DigitalOcean, it make sense to use it.
+
+I'd already successfully created a local container configuration  so that I could develop the app.
+So I figured that with a little bit of work, I could push said application to DigitalOcean, thereby creating a "production" release.
+
+To do so, I created an additional docker-compose file called `docker-copmose-prod.yml`.
+This is what I understand to be common practice.
+You have a base configuration file, then you supplement it with an environment specific file, that overrides or supplements the existing configuration options and settings for that environment.
+
+*So far, so good.*
+
+Then, I needed to create the DigitalOcean droplet, so that I could deploy the containers to.
+Gladly, I don't need to use the UI for that, as docker-machine allows it to be done from the command-line.
+After some reading of the documentation, I determined that the following command would work:
+
+[source]
+----
+docker-machine create --driver=digitalocean \
+  --digitalocean-access-token=$DIGITAL_OCEAN_TOKEN \
+  --digitalocean-size=1gb health-monitor
+----
+
+[source]
+----
+Running pre-create checks...
+Creating machine...
+(health-monitor) Creating SSH key...
+(health-monitor) Creating Digital Ocean droplet...
+(health-monitor) Waiting for IP address to be assigned to the Droplet...
+Waiting for machine to be running, this may take a few minutes...
+Detecting operating system of created instance...
+Waiting for SSH to be available...
+Detecting the provisioner...
+Provisioning with ubuntu(systemd)...
+Installing Docker...
+Copying certs to the local machine directory...
+Copying certs to the remote machine...
+Setting Docker configuration on the remote daemon...
+Checking connection to Docker...
+Docker is up and running!
+To see how to connect your Docker Client to the Docker Engine running on this virtual machine, run: docker-machine env health-monitor
+----
+
+What this will do is create a container host on digitalocean, thanks to the `—driver` switch, naming it "`health-monitor`", and give it a disk size of 1 GB.
+I'd created the environment variable `DIGITAL_OCEAN_TOKEN` to store the API token I'd previously generated.
+
+Running the command, you can see quite detailed output, which details the progress of building the droplet.
+If you look on the web UI, you can see that the progress bar grows accordingly as well.
+
+After the command completed, it was time to do some preliminary checks, to ensure that everything was ready.
+To do that, there are two further docker-machine commands.
+These are:
+
+[source]
+----
+docker-machine ls
+docker-machine inspect health-monitor
+----
+
+// TODO: complete this section.
+== Conclusion
