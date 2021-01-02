@@ -1,0 +1,13 @@
+= About the Author
+
+image::photo/photo-lg.png[align=right,width=250,role="related thumb right"]
+
+So who am I?
+I'm https://matthewsetter.com/[Matthew Setter], and I've been a software developer for nearly 20 years.
+That does make me a bit old, sure.
+However, such is life.
+Here are a few ways that you might have heard of me:
+
+* I wrote https://mezzioessentials.com/[Mezzio Essentials], formerly _Zend Expressive Essentials_.
+* I've written for a number of well-known sites and publications, including https://www.phparch.com/community/matthew-setter/[PHP Arch], https://blog.sqreen.com/author/external/[Sqreen], https://www.sitepoint.com/author/msetter/[Sitepoint], Codeship (now CloudBees), https://blog.codacy.com/five-ways-to-slim-your-docker-images/[Codacy], and https://www.twilio.com/blog/send-sms-mezzio-php-framework[Twilio]
+* I've created technical courses for https://www.pluralsight.com/authors/matthew-setter[Pluralsight], https://www.sitepoint.com/premium/courses/zend-framework-2-the-basics-2865[Sitepoint Premium], and https://tutsplus.com/authors/matthew-setter[envatotuts+].
