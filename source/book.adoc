@@ -21,7 +21,7 @@ v1.0, 2020-02-10
 // Book chapters
 //include::dedication.adoc[]
 
-//include::introduction.adoc[]
+include::introduction.adoc[]
 
 include::local-development-environment.adoc[]
 

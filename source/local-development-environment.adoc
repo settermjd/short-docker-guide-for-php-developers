@@ -1,85 +1,14 @@
 = How To Build a Local Development Environment Using Docker
 
-Building a local development environment which mirrors production hasn't, historically, been an easy task.
-But with Docker, it's become, virtually, trivial.
-Come learn how to setup a local development environment using Docker for developing Zend Expressive (and other PHP) applications.
+Building a development environment which mirrors production (or any other environment) hasn't, historically, been an easy task.
+But with Docker, it's become, _almost_, trivial.
+In this chapter, I'll step you through how to setup a local development environment using Docker for developing PHP applications.
 
-Developers, Developers, Developers.
-It's not easy to be one;
-am I right?
-
-While it's a challenge which we love, it's still a tough gig.
-There are so many things to know;
-from frameworks and software design patterns to deployment and scaling techniques.
-Our time's stretched thin staying abreast of everything.
-
-But somehow we manage.
-Somehow, we keep our heads above water and survive.
-Given all this, the last thing we want to do is waste our precious time on anything which isn't productive.
-
-And something which isn't productive is setting up a development environment.
-Why in this modern day and age is setting up a development environment still such a complicated process?
-
-== Creating Local Development Environments Is Challenging
-
-Why is it still so hard to get one setup that works, that does what you need, and that matches the deployment environment's of testing, staging, production and so on?
-
-Here's what I mean.
-We start off using the native tools available on our operating system of choice.
-We next likely start using LAMP, MAMP, and WAMP stacks.
-
-After we've exhausted these, we usually progress to Vagrant & VirtualBox VM's—after learning one (or more) provisioning tools, such as Chef, Puppet, or Ansible.
-
-By now our development environments have grown quite sophisticated.
-But the overhead of both building and maintaining them has increased significantly also.
-
-Wouldn't it be easy if we could set them up, but with only a small investment of time and effort?
-I think you know where I might be heading with this.
-
-You can.
-Yes, that's right, you can, with Docker.
-
-== Enter Docker
-
-image::docker_logo.png[Docker Logo]
-
-That's right - https://www.docker.com/)[Docker].
-Docker was initially released back in March of 2013 by a hosting company called dotCloud.
-dotCloud had been using the tool internally to make their lives easier managing their hosting business.
-
-https://en.wikipedia.org/wiki/Docker_(software)[To quote Wikipedia:]
-
-[quote]
-Docker is an open-source project that automates the deployment of Linux applications inside software containers.
-
-Here's a longer description:
-
-[quote]
-Docker containers wrap up a piece of software in a complete filesystem that contains everything it needs to run: code, runtime, system tools, system libraries—anything you can install on a server.
-This guarantees that it will always execute the same, regardless of the environment it is running in.
-
-== Docker Is Simpler
-
-Now you might be thinking that this all sounds similar to everything else you've used, such as a LAMP stack or a Vagrant/VirtualBox VM.
-
-In a way it is.
-But it's also a lot less resource and time intensive.
-As the quote above summarizes, Docker contains—and uses—*only* what it needs to run your application—nothing more.
-
-You're not building a big virtual machine which will consume a good chunk of your development machine's resources.
-You don't have to learn—and write—massive configuration setups to build a basic, working, setup.
-
-You don't need to do much at all to get your up and running.
-Docker allows you to build your application infrastructure, as you would your code.
-You determine the parts and services you need and stack them together like Lego blocks.
-
-If you need to change your web server or database server, then switch the current one out for another.
-Need to add a caching, logging, or queueing server?
-Add it into the mix and keep on going.
-It is that simple.
-
-Sound enticing?
-I hope so.
+[NOTE] 
+====
+The code that I use in this chapter (and the rest of the book) will be based on the Mezzio framework.
+However, feel free to substitute an application of your choosing, should you prefer that.
+====
 
 == How to Build a Development Environment with Docker
 
