@@ -5,45 +5,26 @@ While it's a challenge which we love, it's still a tough gig.
 Why?
 Because there are so many things to learn.
 
-From frameworks and software design patterns, to deployment and scaling techniques, to testing, security, and performance demands.
-Our time's stretched thin staying abreast of all of these tasks.
-Yet somehow we manage.
-Somehow, we keep our heads above water and survive.
+From frameworks and software design patterns to deployment and scaling techniques, to testing, security, and performance demands.
+Our time's stretched thin staying abreast of all of these tasks — as well as everything else!
+Yet, somehow, we manage to keep our heads above water and survive.
 
-Given all this, the last thing we want to do is waste our precious time on anything which isn't productive.
-And two things which aren't productive are:
+Given all of these competing priorities, the last thing that we want to do is waste our precious time on anything which isn't productive; and two things which aren't productive are:
 
 . Setting up development environments which match remote environments
 . Deploying our code to those remote environments
 
-So why in this modern day and age can doing both of these tasks still be such a complicated process?
-Why is it still so hard to get one setup that works, that does what you need, and that matches the deployment environment's of testing, staging, production and so on?
-
-Think back to when you first began hacking with PHP code.
-Depending when that was, you likely started off using the native tools available on your operating system of choice.
-
-If you're a Linux user, you likely installed PHP, then Apache or NGINX, and MySQL, or maybe you went with PostgreSQL instead, using the native package manager.
-After a little while, of managing everything on your own, in an attempt to "outsource" the overhead, you likely tried one of the *AMP stacks, such as LAMP, MAMP, and WAMP.
-
-However, as wonderful as these tools are, you invariably outgrew them at some point.
-Here, you might have progressed on to something more fluid and flexible, such as Vagrant & VirtualBox VM's—after learning one (or more) provisioning tools, such as Chef, Puppet, or Ansible.
-
-Given all of this knowledge and experience, your development environments have grown quite sophisticated.
-However, the overhead of both building and maintaining them has increased significantly as well.
-
-Wouldn't it be easy if we could set them up, but with only a small investment of time and effort?
-I think you know where I might be heading with this.
+Wouldn't it be easy if we could perform both of these tasks with only a small investment of time and effort?
 With Docker, you can.
-
 That's why I wrote this short guide!
 
-== Enter Docker
+== So What is Docker?
 
 image::docker_logo.png[Docker Logo]
 
 That's right - https://www.docker.com/)[Docker].
-Docker was initially released back in March of 2013 by a hosting company called dotCloud.
-dotCloud had been using the tool internally to make their lives easier managing their hosting business.
+Docker was initially released back in March of 2013 by a hosting company called _dotCloud_.
+dotCloud had been using the tool internally to make their lives easier, managing their hosting business.
 
 https://en.wikipedia.org/wiki/Docker_(software)[To quote Wikipedia:]
 
@@ -53,33 +34,45 @@ Docker is an open-source project that automates the deployment of Linux applicat
 Here's a longer description:
 
 [quote]
-Docker containers wrap up a piece of software in a complete filesystem that contains everything it needs to run: code, runtime, system tools, system libraries—anything you can install on a server.
+Docker containers wrap up a piece of software in a complete filesystem that contains everything it needs to run: _code_, _runtime_, _system tools_, _system libraries_ — anything you can install on a server.
 This guarantees that it will always execute the same, regardless of the environment it is running in.
 
 == Docker Is Simpler
 
-Now you might be thinking that this all sounds similar to everything else you've used, such as a LAMP stack or a Vagrant/VirtualBox VM.
-
-In a way it is.
-But it's also a lot less resource and time intensive.
-As the quote above summarizes, Docker contains—and uses—*only* what it needs to run your application—nothing more.
+Because of how Docker is designed, it's also a lot less resource and time-intensive.
+As the quote above summarizes, Docker containers contain *only* what they need to run your application — nothing more!
 
 You're not building a big virtual machine which will consume a good chunk of your development machine's resources.
-You don't have to learn—and write—massive configuration setups to build a basic, working, setup.
+You don't have to learn—and write—massive configuration setups to build a basic, working, environment.
+You don't need to do much at all, sometimes, to get your application up and running.
 
-You don't need to do much at all to get your up and running.
-Docker allows you to build your application infrastructure, as you would your code.
-You determine the parts and services you need and stack them together like Lego blocks.
+Docker allows you to build your application's infrastructure as you would your code.
+You determine the parts and services you need and compose them like LEGO blocks.
 
-If you need to change your web server or database server, then switch the current one out for another.
-Need to add a caching, logging, or queueing server?
-Add it into the mix and keep on going.
-It is that simple.
+If you need to change your web or database server, you can switch them one out for another.
+If you need to add a caching, logging, or queueing server, you can add an additional container to your existing configuration and keep ongoing.
+It can be that simple.
 
 Sound enticing?
 I hope so.
 
 == Why This Book?
 
+Hopefully, the above introduction explained the "why" of this book.
+However, just in case it didn't, let me be more specific.
+I love using Docker to build and deploy PHP applications.
+Since I started using it, it's greatly reduced the effort required to build development environments and to deploy applications to remote environments.
+Given that these two tasks are still ones that I hear other developers feel frustrated by, I wanted to share how to make them easier with Docker, based on my own experience.
+
 == Who Is This Book For?
 
+Is this guide for you? 
+Here are three, somewhat long-winded questions, that can help you answer it:
+
+* Have you experimented with all manner of tools and processes for building your local and remote environments, and for deploying local changes to those remote environments, and want a process that is, for the most part, simple?
+* Have you heard of Docker and want to get an idea of what it is and how it can help you build PHP applications with less time and effort?
+* Have you tried to use Docker to do build environments and deploy applications, but hit one brick wall after another?
+
+If you can answer yes to at least one of these questions, then this guide is for you.
+It's not an exhaustive guide. 
+Rather, it's a short one, designed to get you up and running, while giving you a path to learn more once you've mastered these two essential tasks.
