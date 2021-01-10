@@ -1,0 +1,21 @@
+= TODO
+
+- Add Docker Compose configuration diagram (section: "The Docker Setup")
+- Change all screenshots to Firefox. 
+  Make them high-quality, and properly sized
+- Create and enforce style guide
+- Update syntax highlighting and code font
+- Get Kara to review the guide
+- Update admonition icons and styling
+- Style the chapter pages and add artwork
+- Update test/debug chapter to show how to debug with PhpStorm
+- Add in relevant external links
+- See if some sections could have more information added to them
+- Link to further resources, services, etc.
+- Style the images with borders, etc
+- Update Docker configuration to latest version
+- Update quote styling
+- Flesh out chapter recaps
+- Add testing/debugging to the list of "what the book will achieve"
+- Add page plugging me
+- Replace the app used in the book
