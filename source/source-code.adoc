@@ -1,0 +1,15 @@
+= The Book's Code
+
+All of the code contained in the book can be found on GitHub, in two repositories:
+
+* https://github.com/settermjd/mezzio-expressive-book-code-examples-manual-build[Code for the manual build]
+* https://github.com/settermjd/mezzio-expressive-book-code-examples-skeleton-build[Code for the Mezzio Skeleton build]
+
+I encourage you to clone or download a copy, work through it as you progress through the book, play with it, break it, and change it as much as you need. I'll assume, throughout the book, that you have a copy.
+
+[NOTE] 
+====
+xref:source-code.adoc[The code] that I use in this guide will be based on {mezzio-framework-url}[the Mezzio framework], formerly known as _Zend Expressive_.
+That said, the configuration should work for any PHP application.
+However, feel free to substitute an application of your choosing, should you prefer it.
+====

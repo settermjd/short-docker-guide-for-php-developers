@@ -1,0 +1,9 @@
+= How to Report a Bug
+
+If you find a bug in any of the code here in the book, you can:
+
+- Email me at mailto:matthew@matthewsetter.com[matthew@matthewsetter.com].
+- Submit a https://help.github.com/articles/creating-a-pull-request[pull request (PR)].
+
+As soon as it is possible after I receive any bug notifications, the code will be corrected, and a new version of the book will be published.
+

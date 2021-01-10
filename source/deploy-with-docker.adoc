@@ -84,4 +84,5 @@ docker-machine inspect health-monitor
 ----
 
 // TODO: complete this section.
-== Conclusion
+== Chapter Recap
+

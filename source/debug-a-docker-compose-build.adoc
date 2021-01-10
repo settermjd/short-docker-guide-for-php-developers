@@ -1,4 +1,4 @@
-= How to Debug a Docker Compose Build
+= So How Do I Debug a Docker Configuration?
 
 If you're using docker-compose to build a Docker container setup and something's not working, here's a basic process you can follow to find out what happened, and get your containers up and running properly.
 
@@ -84,7 +84,7 @@ core1000_database_1    docker-entrypoint.sh mysqld      Up      0.0.0.0:3306->33
 core1000_webserver_1   docker-php-entrypoint apac ...   Up      0.0.0.0:80->80/tcp
 ----
 
-== In Conclusion
+== Chapter Recap
 
 While this hasn't been the most in-depth of guides on how to debug a Docker configuration, built with Docker Compose, it's covered the essentials.
 

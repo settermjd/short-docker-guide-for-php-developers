@@ -1,0 +1,27 @@
+= Disclaimer
+
+The information contained in {book_name} is meant to serve as a starting point for learning Mezzio.
+It contains practices designed to quickly get you going while avoiding concepts that you likely won't need regularly.
+
+Summaries, strategies, tips, and tricks are only recommendations by the author, and reading this book does not guarantee your results will exactly mirror his.
+
+The author of _"{book_name}"_ has made all reasonable efforts to provide current and accurate information for the readers of this book. The author will not be held liable for any unintentional errors or omissions that may be found.
+
+The material in _"{book_name}"_ may include *information*, *products*, and *services* by third parties.
+Third-party materials comprise the products and opinions expressed by their owners.
+As such, the author of this book does not assume responsibility or liability for any third party material or opinions.
+
+The publication of such third party materials does not constitute the author's guarantee of any *information*, *instruction*, *opinion*, *products*, or *service* contained within the third party material.
+
+Use of recommended third party material does not guarantee your results, with _"{book_name}"_ will mirror mine.
+Publication of such third party material is simply a recommendation and expression of the author's own opinion of that material.
+
+Whether because of the general evolution of the internet, or the unforeseen changes in policy and editorial submission guidelines, what is stated as fact at the time of this writing, may become outdated or simply inapplicable at a later date.
+This may apply to _"{book_name}"_.
+
+Considerable effort has been exerted to safeguard the accuracy of this writing.
+Opinions regarding similar website platforms have been formulated as a result of both personal experience, as well as the well-documented experiences of others.
+
+No part of this publication shall be *reproduced*, *transmitted* or, *resold* in whole or in part in any form, without the prior written consent of the author.
+All trademarks and registered trademarks appearing in _"{book_name}"_ are the property of their respective owners.
+

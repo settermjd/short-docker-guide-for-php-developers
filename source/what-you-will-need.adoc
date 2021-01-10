@@ -1,0 +1,9 @@
+= What You Will Need
+
+You don't need much to follow along with the short guide, just the following things:
+
+- https://docs.docker.com/engine/install/[Docker Engine] and https://docs.docker.com/compose/install/[Docker Compose] installed on your operating system of choice
+- A cloned copy of the book's code (_coming shortly_) or a PHP application that you want to run and deploy using Docker
+- A text editor or IDE of your choosing, so that you can experiment with the Docker and Docker Compose configuration files.
+  I have no particular preference, but recommend https://www.vim.org/[VIM] and https://www.jetbrains.com/phpstorm/[PhpStorm]
+

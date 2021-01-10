@@ -1,4 +1,4 @@
-= How to Build a Docker Test Environment
+= So How Do I Test and Debug My App?
 
 Docker makes it easy to build local development environments. 
 But, what about being able to build test environments and run acceptance, unit, functional, and other types of tests? 
@@ -25,7 +25,7 @@ Instead, what you need to do is to use `docker exec`.
 This command connects to an existing, _running_, container, one which is in a network along with the other containers which we need. 
 As a result it will be able to access the containers and execute the tests successfully.
 
-== Adding Test Support
+== Add Test Support
 
 We didn't, explicitly, add test support in part one of this series, but most projects constructed with https://matthewsetter.com/zend-expressive-introduction[the Zend Skeleton installer]() will have some basic tests in place. 
 If you look in `test/AppTest/Action` you'll see `HomePageActionTest.php`.
@@ -106,7 +106,7 @@ This test will do the following:
 
 If all of these assertions pass, then the test will have succeeded.
 
-== Running the Tests
+== Run the Tests
 
 Now that the test structure is in place, let's run it. 
 Gladly, it's not that different from running tests in either a virtual machine, or locally. 
@@ -128,7 +128,7 @@ It's quite similar to running a command on a remote server with ssh or vagrant s
 Don't make the mistake of using the `run` command, which will run a command in a new container. 
 This will boot up a new instance of the PHP container, on a separate network, without any of the other containers which are needed to perform the tests.
 
-== Adding Tooling Support
+== Add Tooling Support
 
 And that's how to run tests for PHP-based web applications when you're developing and running them using a Docker local development environment. 
 But it's reasonable to expect that you might not remember the command, or make a mistake. 
@@ -229,7 +229,7 @@ Alternatively, we can run a target by it's name, by providing the name of the ta
 NOTE: The coverage of Make and Phing were deliberately simplistic, as the intent was to focus on running the test commands. 
 There will be thorough guides on Make and Phing in upcoming tutorials.
 
-== In Conclusion
+== Chapter Recap
 
 And that's how to build a test development environment using Docker. 
 While there are many approaches to doing so, this one at least doesn't make things overly complicated.

@@ -1,0 +1,32 @@
+= Essential Terminology
+
+Before we dive in to creating a local development environment using Docker, there is some essential terminology that you need to be aware of.
+I'll keep it as short as I can.
+
+== [Docker Image]
+
+Quoting https://docs.docker.com/glossary/?term=image[the Docker Glossary]:
+
+[quote]
+----
+Docker images are the basis of containers. 
+An Image is an ordered collection of root filesystem changes and the corresponding execution parameters for use within a container runtime. 
+An image typically contains a union of layered filesystems stacked on top of each other. 
+An image does not have state and it never changes.
+----
+
+== Docker Container
+
+Again quoting https://docs.docker.com/glossary/?term=container#container[the Docker Glossary]:
+
+[quote]
+----
+A container is a runtime instance of a docker image.
+A Docker container consists of
+
+- A Docker image
+- An execution environment
+- A standard set of instructions
+
+The concept is borrowed from Shipping Containers, which define a standard to ship goods globally. Docker defines a standard to ship software.
+----

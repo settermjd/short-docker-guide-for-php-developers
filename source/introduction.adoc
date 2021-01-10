@@ -37,8 +37,6 @@ Here's a longer description:
 Docker containers wrap up a piece of software in a complete filesystem that contains everything it needs to run: _code_, _runtime_, _system tools_, _system libraries_ — anything you can install on a server.
 This guarantees that it will always execute the same, regardless of the environment it is running in.
 
-== Docker Is Simpler
-
 Because of how Docker is designed, it's also a lot less resource and time-intensive.
 As the quote above summarizes, Docker containers contain *only* what they need to run your application — nothing more!
 
@@ -49,30 +47,19 @@ You don't need to do much at all, sometimes, to get your application up and runn
 Docker allows you to build your application's infrastructure as you would your code.
 You determine the parts and services you need and compose them like LEGO blocks.
 
-If you need to change your web or database server, you can switch them one out for another.
-If you need to add a caching, logging, or queueing server, you can add an additional container to your existing configuration and keep ongoing.
+Actually, a better way to think of it is like a cargo ship on the sea, which carries shipping containers around the world.
+It doesn't matter what is inside the container (more or less).
+What's important is that they're a standardised container which can be put on virtually any ship bound for any port.
+If one ship can't carry them, then another one can.
+
+And so it is with Docker.
+When you use Docker, you can build your application based on one or more containers, and then deploy that setup to any hosting service that supports Docker.
+If that service goes out of business, increases its prices too steeply, or its support is too lousy, you can then redeploy your application to another host that supports Docker.
+
+At the application level, if you need to change your web or database server, you can switch them one out for another.
+If you need to scale them out, you can add more containers to your configuration.
+If you need to add a caching, logging, or queueing server, you can add additional containers to your configuration.
 It can be that simple.
 
 Sound enticing?
-I hope so.
-
-== Why This Book?
-
-Hopefully, the above introduction explained the "why" of this book.
-However, just in case it didn't, let me be more specific.
-I love using Docker to build and deploy PHP applications.
-Since I started using it, it's greatly reduced the effort required to build development environments and to deploy applications to remote environments.
-Given that these two tasks are still ones that I hear other developers feel frustrated by, I wanted to share how to make them easier with Docker, based on my own experience.
-
-== Who Is This Book For?
-
-Is this guide for you? 
-Here are three, somewhat long-winded questions, that can help you answer it:
-
-* Have you experimented with all manner of tools and processes for building your local and remote environments, and for deploying local changes to those remote environments, and want a process that is, for the most part, simple?
-* Have you heard of Docker and want to get an idea of what it is and how it can help you build PHP applications with less time and effort?
-* Have you tried to use Docker to do build environments and deploy applications, but hit one brick wall after another?
-
-If you can answer yes to at least one of these questions, then this guide is for you.
-It's not an exhaustive guide. 
-Rather, it's a short one, designed to get you up and running, while giving you a path to learn more once you've mastered these two essential tasks.
+*I hope so!*

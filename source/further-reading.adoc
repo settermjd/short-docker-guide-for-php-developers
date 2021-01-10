@@ -1,0 +1,11 @@
+= Further Reading
+
+This was not an extensive guide to Docker, rather, a short, introductory guide.
+That said, if you've read this far, I'm sure that you want to learn more.
+If so, I strongly encourage you to check out one of the following resources:
+
+- {learning-containers-url}[Learning Containers], by Chris Tankersley
+- {shipping-docker-url}[Shipping Docker] by Chris Fidao; or
+- {docker-for-devs-url}[Docker for Developers]
+
+They're all excellent resources!

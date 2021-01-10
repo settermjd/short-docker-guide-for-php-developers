@@ -14,6 +14,11 @@ v1.0, 2020-02-10
 :source-highlighter: coderay
 :toc:
 :toclevels: 2
+:mezzio-framework-url: https://docs.mezzio.dev/mezzio/
+:mezzio-essentials-url: https://mezzioessentials.com/
+:learning-containers-url: https://learningcontainers.com/
+:shipping-docker-url: http://shippingdocker.com/
+:docker-for-devs-url: https://leanpub.com/dockerfordevs
 
 // Book attributes
 //include::book-attributes.adoc[]
@@ -21,16 +26,24 @@ v1.0, 2020-02-10
 // Book chapters
 //include::dedication.adoc[]
 
+include::front-matter.adoc[]
+
 include::introduction.adoc[]
+
+include::essential-terminology.adoc[]
+
+include::install-docker.adoc[]
 
 include::local-development-environment.adoc[]
 
-include::debug-a-docker-compose-build.adoc[]
-
 include::build-a-docker-test-environment.adoc[]
+
+include::debug-a-docker-compose-build.adoc[]
 
 include::from-development-to-deployment.adoc[]
 
-//include::conclusion.adoc[]
+include::conclusion.adoc[]
+
+include::further-reading.adoc[]
 
 //include::corrigendum.adoc[]

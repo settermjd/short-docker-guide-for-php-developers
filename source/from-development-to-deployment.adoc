@@ -1,4 +1,4 @@
-= How to Go From Development to Deployment with Docker
+= So How Do I Deploy My App?
 
 //Want to know how to both containerise an application and deploy it to a production environment?
 //In this mammoth tutorial, I'll show you all the steps involved, and provide background information along the way, so you can build on what you'll learn.
@@ -18,7 +18,7 @@ Here's why:
 So this is going to be a lengthy post.
 However, I've aimed to provide the most direct path to your first production deployment, as well as to structure it so that it's easy to work through or navigate to the specific part you need.
 
-== Tutorial Prerequisites
+== Prerequisites
 
 To follow along with this tutorial, you're going to need the following, three, things:
 
@@ -51,8 +51,6 @@ This way, in contrast to what I suggested in https://matthewsetter.com/docker-de
 NOTE: This may be painfully obvious to some, but at first it wasn't to me.
 For those who thought the same as I did, I hope this helps.
 It's rather like writing maintainable code if you think about it.
-
-{{< partial "inline-book-promotion" >}}
 
 == Create & Build the Container
 
@@ -454,26 +452,4 @@ And here's what mine looks like:
 
 image::digitalocean-deployed-application.png[The deployed Docker Stack application on DigitalOcean]
 
-== In Conclusion
-
-And that's the end of the tutorial.
-We've covered how to containerise an application, how to build a deployment configuration using Docker Swarm, and deploy it to a non-development environment using Docker Stack.
-Yes, there have been quite a number of steps, and perhaps too many Docker commands—_my pet peeve with Docker_.
-
-*But, we're there!*
-
-I've taken some shortcuts to keep the post as short as possible.
-And there are so many things that I've not covered, such as:
-
-* Creating a more sophisticated image or deployment configuration
-* Considered the security implications of the container we've deployed
-* Considered such requirements such as how to roll back a release
-* Seen how to update an existing release
-* Seen how to destroy an existing swarm
-
-However, for a simple example, it's sufficient.
-Ideally, I'd like to expand on this post at some stage.
-However, I didn't want to overwhelm you today.
-
-I hope that you've been able to follow the instructions here successfully, and in the process learned a lot.
-If you've had any problems, want to know more, or want to suggest other ways to do it, add your feedback in the comments.
+== Chapter Recap

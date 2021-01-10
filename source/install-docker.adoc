@@ -1,0 +1,16 @@
+= So How Do I Install Docker?
+
+image::docker-install-options.png[Docker Install Options]
+
+== Using Linux?
+
+I'll assume that you don't have Docker installed on your local machine.
+If not, and you're using a Linux distribution, then use its package manager to install Docker.
+
+== Using macOS or Windows?
+
+If you're not using Linux, then grab a copy of https://docs.docker.com/docker-for-mac/[Docker for Mac] or https://www.docker.com/products/docker#/windows[Docker for Windows], depending which platform you're using.
+The installers do an excellent job of making the setup pretty painless.
+
+With Docker installed, we're now able to start building our local development environment.
+

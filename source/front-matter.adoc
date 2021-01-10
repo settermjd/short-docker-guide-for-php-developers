@@ -1,0 +1,33 @@
+= Why This Book?
+
+Hopefully, the above introduction explained the "why" of this book.
+However, just in case it didn't, let me be more specific.
+I love using Docker to build and deploy PHP applications.
+
+Since I started using it, it's greatly reduced the effort required to build development environments and to deploy applications to remote environments.
+Given that these two tasks are still ones that I hear other developers feel frustrated by, I wanted to share how to make them easier with Docker, based on my own experience.
+
+= Who Is This Book For?
+
+Is this guide for you? 
+Here are three, somewhat long-winded questions, that can help you answer it:
+
+* Have you experimented with all manner of tools and processes for building your local and remote environments, and for deploying local changes to those remote environments, and want a process that is, for the most part, simple?
+* Have you heard of Docker and want to get an idea of what it is and how it can help you build PHP applications with less time and effort?
+* Have you tried to use Docker to do build environments and deploy applications, but hit one brick wall after another?
+
+If you can answer yes to at least one of these questions, then this guide is for you.
+It's not an exhaustive guide. 
+Rather, it's a short one, designed to get you up and running, while giving you a path to learn more once you've mastered these two essential tasks.
+
+= A Few Things Before We Begin
+
+include::disclaimer.adoc[leveloffset=+1]
+
+include::book-conventions.adoc[leveloffset=+1]
+
+include::source-code.adoc[leveloffset=+1]
+
+include::how-to-report-a-bug.adoc[leveloffset=+1]
+
+include::what-you-will-need.adoc[leveloffset=+1]

@@ -1,0 +1,26 @@
+= Conventions Used in This Book
+
+The following http://oreilly.com/openbook/debian/book/prf1_02.html[typographical conventions] are used in this book:
+
+**Boldface** - indicates a keyboard command, such as Enter.
+
+`Constant width` - indicates command-line computer output, code examples, and keyboard accelerators (See <<keyboard-accelerators,"Keyboard Accelerators">> later in this section).
+
+`_Constant width italic_` - indicates variables in examples.
+
+`*Constant width bold*` - indicates user input in examples.
+
+_Italic_ - introduces new terms and indicates URLs or user-defined files and directories, commands, command options, file extensions, filenames, directory or folder names, and pathnames.
+
+== Path Notation
+
+I use a shorthand notation to indicate paths. Instead of writing _"Click on the Start menu, then click on Find, then Files or Folders,"_ I write: **Start** -> **Find** -> **Files or Folders**. I distinguish menus, dialog boxes, buttons, or other GUI elements only when the context would otherwise be unclear. Just look for the GUI element whose label matches an element of the path.
+
+== Keyboard Accelerators
+
+In a keyboard accelerator (such as `Ctrl-Alt-Del`), a dash indicates that the keys should be held down simultaneously, whereas a space means that the keys should be pressed sequentially. For example, `Ctrl-Esc` indicates that the Ctrl and Esc keys should be held down simultaneously, whereas `Ctrl Esc` means that the Ctrl and Esc keys should be pressed sequentially.
+
+Where a keyboard accelerator contains an uppercase letter, you should not type the Shift key unless it's given explicitly. For example, `Ctrl-C` indicates that you should press the Ctrl and C keys; `Ctrl-Shift-C` indicates that you should press the Ctrl, Shift, and C keys.
+
+-- http://oreilly.com/openbook/debian/book/prf1_02.html[Courtesy of O'Reilly & Associates, Inc.]
+
