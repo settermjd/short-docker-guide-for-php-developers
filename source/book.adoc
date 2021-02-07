@@ -36,9 +36,9 @@ include::install-docker.adoc[]
 
 include::local-development-environment.adoc[]
 
-include::build-a-docker-test-environment.adoc[]
-
 include::debug-a-docker-compose-build.adoc[]
+
+include::build-a-docker-test-environment.adoc[]
 
 include::from-development-to-deployment.adoc[]
 
