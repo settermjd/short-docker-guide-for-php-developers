@@ -10,19 +10,21 @@ Let's get started!
 == Our Demo Application
 
 The demo application that we’ll use throughout this book, as I mentioned earlier, is based on the Mezzio framework.
-It’s not that sophisticated, rather a simplistic application that needs to interact with a database; rather the classic PHP application, if you will.
+// Does this need to be expanded?
+It’s not that sophisticated, rather it’s a simplistic application that needs to interact with a database. 
+It’s a classic PHP application, if you will.
 It doesn’t make use of any logging, queueing, or caching services.
 I decided to keep the requirements rather modest, so that it didn’t get in the way of the book’s main purpose.
-So, the application needs three core services:
 
-. A PHP runtime
+That said, the application needs three core services for it to function:
+
+. A PHP runtime (I’ll be using PHP {php-runtime-version})
 . A webserver to serve the static content.
-  It will need a decent one.
-  For that, I've chosen NGINX over Apache.
+  I've chosen NGINX over Apache.
 . A database server to provide the dynamic information.
   For that, I've chosen PostgreSQL.
 
-There will also be a couple of PHP extensions required, but we can cover them shortly.
+There will also be a couple of PHP extensions required, which we’ll cover shortly.
 
 Given these needs, the setup will be composed of three containers:
 
@@ -33,9 +35,12 @@ Given these needs, the setup will be composed of three containers:
 TIP: This follows the Docker ethos of https://docs.docker.com/config/containers/multi-service_container/[one process (or service) per container].
 The essential setup can be visualized in the illustration below.
 
+.The basic Docker setup overview
+image::docker-design.png[]
+
 In addition the setup will create two networks: one internal one and one public one.
 The PHP, NGINX, and database containers will be placed within the internal one, so that they can communicate freely with one another. 
-The NGINX container will be placed within the public one.
+The NGINX container, however, as we need to make requests to it, will also be placed within the public network.
 
 I’m doing this for two reasons:
 
@@ -43,16 +48,14 @@ I’m doing this for two reasons:
 . To add a bit of http://docs.docker.oeynet.com/engine/security/security/[security] to the Docker setup. 
   The setup will allow only a minimum of access from the outside to the resources of the configuration.
 
-// Cover shared volumes, environment variables, healthcheck, labels, secrets, restart
-lastly, port 80 on NGINX container will be connected to (http://docs.docker.oeynet.com/compose/compose-file/#expose[exposed]) port 8080 on the local machine (or host), so that the application can be used.
+// TODO: Cover shared volumes, environment variables, healthcheck, labels, secrets, restart
+Lastly, port 80 on the NGINX container will be connected to (http://docs.docker.oeynet.com/compose/compose-file/#expose[exposed]) port 8080 on the local machine (or host), so that the application can be used.
 
-The essential setup can be visualized in the illustration below.
+== The Docker Compose Configuration
 
-image::docker-design.png[The Docker Container Setup]
-
-Let's start with the web server configuration.
+With the design out of the way, let’s get started working through the configuration file, starting with the web server container.
 In the root directory of your project, create a new file, called `docker-compose.yml`.
-In there, add the following configuration:
+In that file, add the following configuration:
 
 [source,yaml]
 ----
@@ -65,17 +68,15 @@ volumes:
 services:
   nginx:
     image: nginx:latest
+    restart: always
     ports:
       - 8080:80
     volumes:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-    volumes_from:
-      - php
+      - ./:/var/www/html
 ----
 
-The configuration starts off by specifying that we're using https://docs.docker.com/compose/compose-file/#/version-2[version 2 of the Docker Compose file format].
-This is important as using version 2 requires less work on our part, in comparison with version 1.
-
+The configuration starts off by specifying that we're using https://docs.docker.com/compose/compose-file/#/version-3[version 3 of the Docker Compose file format].
 It next sets up http://container-solutions.com/understanding-volumes-docker/[a persistable filesystem volume], which will be used later in the PostgreSQL container.
 This is important to be aware of as, by default, filesystems in a Docker container are setup to be read-only.
 
@@ -84,29 +85,58 @@ When a container restarts, the original files will be restored and any new files
 Not a great thing when working with databases, or other storage mechanisms.
 
 We next define an element called `services`.
-This element lists the definitions of the three containers which will make up our build, and start defining the NGINX container.
+This element lists the definitions of the three containers which will make up our build, and start defining the NGINX container (or service).
 
 What this does is to create a container called `nginx`, which can be referred to by the other containers using the hostname `nginx`.
-It will use the latest, official, Docker NGINX container image as the base for the container.
-After that, we map port 80 in the container to port 8080 on our host machine.
-This way, when we're finished, we'll be able to access our application by navigating to `+http://localhost:8080+`.
+
+[WARNING]
+====
+You can use the `container_name` directive to set a custom name as well. 
+However, https://docs.docker.com/compose/compose-file/compose-file-v3/#container_name[according to the Docker documentation]: 
+
+> "_Because Docker container names must be unique, you cannot scale a service beyond 1 container if you have specified a custom name._" 
+
+Please be aware of that.
+====
+
+It will use the latest, official, https://registry.hub.docker.com/_/nginx[Docker NGINX image] as the base for the container.
+Next, it sets the `restart` directive to `always`.
+This will cause Docker to restart it if it should crash or stop for some reason, other than when running `docker-compose down`.
+This directive supports three additional values:
+
+[cols="25%,75%"]
+|===
+|`no` 
+|This is the default value. When set, Docker does not restart a container for any reason. 
+|`on-failure`
+|When set Docker restarts a container if the exit code indicates an on-failure error.
+|`unless-stopped`
+|When set Docker always restarts a container, except when the container is stopped (manually or otherwise).
+|===
+
+After that, it maps port 80 in the container to port 8080 on our host machine.
+This way, we'll be able to access the application by navigating to `http://localhost:8080`.
 
 It next copies `./docker/nginx/default.conf` from the local filesystem to `/etc/nginx/conf.d/default.conf` in the container's filesystem.
-default.conf provides the core configuration for NGINX.
-To save space, I've not included it here.
-However, you can find it https://raw.githubusercontent.com/settermjd/docker-for-local-development/master/docker/nginx/default.conf[in the repository for this tutorial].
+`default.conf` provides the core configuration for NGINX.
 
-Finally, the container gets access to a filesystem volume in the PHP container, which we'll see next.
-This will let us develop locally on our host machine, yet use the code in the NGINX server.
+[source,php,linenos,indent=0]
+----
+include::https://raw.githubusercontent.com/settermjd/docker-for-local-development/master/docker/nginx/default.conf[in the repository for this tutorial]
+----
+
+Finally, the current directory is mounted in the container at `/var/www/html`.
+This lets us develop locally on our host machine, yet use the code in the NGINX container.
 
 == The PHP Container
 
-The configuration for the PHP container, below, is rather similar to that of the NGINX container.
+The configuration for the PHP container below is rather similar to that of the NGINX container.
 
 [source,yaml]
 ----
 php:
   build: ./docker/php/
+  restart: always
   expose:
     - 9000
   volumes:
@@ -118,32 +148,31 @@ The `build` directive tells it to use a configuration file, called `Dockerfile`,
 
 [source,yaml]
 ----
-FROM php:7.0-fpm
+FROM php:7.4-fpm
 
-RUN docker-php-ext-install pdo_mysql \
-    && docker-php-ext-install json
+RUN docker-php-ext-install pdo_pgsql
 ----
 
-This states that our container is based on the official PHP 7 image from Docker Hub, which uses PHP-FPM.
+This states that our container is based on the official PHP 7.4 image from Docker Hub, which uses PHP-FPM.
 I'm keeping things as official as possible.
 
-In addition to using the default image, I've also added some PHP extensions, by calling the `docker-php-ext-install` command.
-Specifically, I'm ensuring that `pdo_mysql` and `json` are available in the container.
+In addition to using the default image, I've also installed the PDO PostgreSQL extension, by calling the `docker-php-ext-install` command.
 
 NOTE: This command does not install an extension's dependencies.
-It only installs the extension, if the dependencies are available.
+It only installs the extension, _if_ the dependencies are available.
 
 Going back to docker-compose.yml, it next exposes the container's port 9000.
 If this is your first time reading about Docker, that might not make a lot of sense.
-What it's doing is exposing the container's port 9000, a lot like when we allow access to a port through a firewall.
+It's a lot like when we allow access to a port through a firewall, only it’s only for container to container communication.
 
-If you've had a look at `./docker/nginx/default.conf` in the source repository, you'll have see that it contains the directive: `fastcgi_pass php:9000;`.
+TIP: If you want to access a port on the container, you have to use the `ports` directive.
+
+If you've had a look at `./docker/nginx/default.conf` in the source repository, you'll have seen that it contains the directive: `fastcgi_pass php:9000;`.
 This allows the NGINX container to pass off requests to PHP in the PHP container.
 
 Lastly, we're mapping a directory on our development machine to a directory in the container, for use in the container.
-This will also be available in the NGINX container, thanks to the `volumes_from` directive, which we saw earlier.
-
 This has the effect of sharing your local directory with the container, rather like https://www.vagrantup.com/docs/synced-folders/[Vagrant's shared folders], which makes local development quite efficient.
+
 When you make a change in your development environment, whether in a text editor, or an IDE such as PhpStorm, the changes will be available in the container as well.
 There is no need to manually copy or sync files between your development environment and the container.
 
@@ -153,25 +182,56 @@ Now, for the final piece, the PostgreSQL container.
 
 [source,yaml]
 ----
-mysql:
-  image: mysql:latest
-  expose:
-    - 3306
+postgresql:
+  image: postgres:13.1-alpine
+  restart: always
+    environment:
+      POSTGRES_PASSWORD: project
+      POSTGRES_USER: user
+      POSTGRES_DB: project_db
   volumes:
-    - database_data:/var/lib/mysql
-  environment:
-    MYSQL_ROOT_PASSWORD: secret
-    MYSQL_DATABASE: project
-    MYSQL_USER: project
-    MYSQL_PASSWORD: project
+    - ./data:/var/lib/postgresql/data
 ----
 
-As with the other containers, we've given it a name (and hostname): `mysql`.
-We are using the official PostgreSQL container image, from https://hub.docker.com/[DockerHub] as the foundation for it and exposing port 3306, the standard PostgreSQL port, which was referred to in the PHP container.
+As with the other containers, we've given it a name (`postgresql`).
+We are using https://hub.docker.com/_/postgres/[the official PostgreSQL image], from Docker Hub.
+We’re not exposing a port, as we’re going to use https://www.adminer.org/[Adminer], a PHP front end administration tool, in another container to administer it.
 
-Next, using the `volumes` directive, we're making any changes in `/var/lib/mysql`, where PostgreSQL will store its data files, permanent.
-We then finish up setting four environment variables, which the PostgreSQL server needs.
-These are for the root PostgreSQL password, the name of the database to create, and an application username and password.
+TIP: If you prefer using psql, you can connect to the container and interact with the database that way.
+
+Notice the `environment` option.
+Here, we can pass environment variables to the container, ones which have been pre-defined.
+We’re setting three environment variables.
+These are for the database user’s username and password, and the database name.
+
+[TIP]
+====
+You can find a list of the predefined variables for an image in the image’s official documentation, an example of which you can see in the image below.
+
+image::...[]
+====
+
+Next, using the `volumes` directive, we're making any changes in `/var/lib/postgresql/data`, where PostgreSQL will store its data files, permanent, as they will be written to the local `data` directory in the project’s root.
+
+
+[source,yaml]
+----
+adminer:
+  image: adminer
+  restart: always
+  ports:
+    - 8090:8080
+  depends_on:
+    - postgresql
+----
+
+Lastly, we’re adding one final container, for Adminer, so that, when necessary, we can administer the PostgreSQL server directly.
+All but one of the directives you are now familiar with.
+
+The new directive is `depends_on`. 
+To this directive we can pass a list of container names which this container depends on.
+When `docker-compose up` is run, the containers which this container depends on are started first. 
+When `docker-compose down` is run, this container will be stopped before the containers on which it depends are stopped.
 
 == Booting the Docker Containers
 
@@ -182,23 +242,33 @@ From the terminal, in the root directory of your project, run the following comm
 docker-compose up -d
 ----
 
-What this will do, is to look for `docker-compose.yml` in the same directory for the instructions it needs to build the containers, and then start them.
-After they start, Docker will go into daemon mode.
-
+What this will do, is to look for `docker-compose.yml` in the same directory for the instructions it needs to build the containers, and then start them, based on the dependency order.
+After they start, Docker will go into _detached_ mode, where the containers are run in the background.
 When you run this, you'll see each container being created and started.
-If this is the first time that you've created and launched the containers, then the base images will have to be first downloaded, before the containers can be created on top of them.
 
+If this is the first time that you've created and launched the containers, then the base images will be downloaded before the containers can be created on top of them.
 This may take a few minutes, based on the speed of your connection.
 However, after the first time, they'll usually be booted in under a minute.
 
+[TIP]
+====
+If you want to save yourself a bit of time, pull the respective base images down locally using `docker pull`, as you can see in the image below.
+
+image::local-development-environment/official-image-documentation-example.png[The docker pull command example in the official Docker image documentation]
+====
+
 With them created, you're ready to use them.
-At this point, in a browser, navigate to `http://localhost:8080`, where you'll see your application running, which renders https://matthewsetter.com/zend-expressive-introduction[the standard Zend Expressive Skeleton Project home page].
+At this point, in a browser, navigate to `http://localhost:8080`, where you'll see the application running. 
+It renders https://matthewsetter.com/zend-expressive-introduction[the standard Mezzio Skeleton Project home page].
+Nothing flash, but it works.
+
+image::local-development-environment/official-image-documentation-example.png[The docker pull command example in the official Docker image documentation]
 
 == Chapter Recap
 
-That's how to use Docker to build a local development environment for Zend Expressive (or any PHP) application.
-We have one container which runs PHP, one which runs NGINX, and one which runs PostgreSQL;
-all able to talk to each other as needed.
+That's how to use Docker to build a local development environment for a PHP application.
+We have one container which runs PHP, one which runs NGINX, one which runs PostgreSQL, and one which runs Adminer;
+All able to talk to each other as needed, and we can access NGINX on port 8080 of our local machine.
 
 You could say that we can now build environments a lot like we can build code—in a modular fashion.
 It's a fair way of thinking about it.
@@ -206,4 +276,10 @@ Why shouldn't we be able to do so?
 
 I appreciate this has been quite a rapid run-through.
 But it has covered the basics required to get you started.
-We haven't looked too deeply into how Docker works, nor gone too far beyond the basics.
+We haven't looked _too_ deeply into how Docker works, nor gone too far beyond the basics.
+However, we have covered the essentials.
+
+== In the Next Chapter
+
+Coming up in the next chapter, we’ll build on what you learned in this chapter, by stepping through how to debug a Docker Compose environment. 
+See you then.
