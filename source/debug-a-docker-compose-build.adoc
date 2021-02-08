@@ -6,9 +6,9 @@ That way you can either fix it or ask someone else for help, if you can’t fix 
 So here's a basic process you can follow to find out what happened, and get your containers up and running properly.
 
 To put this into greater context, when I was first getting stated with Docker, I was trying to create a Docker development environment for building a new Mezzio application.
-I'd created a basic container configuration, using the `php:7-apache` and MariaDB containers and thought that everything should work.
+I'd created a basic container configuration, very similar to the one in this short guide, using the `php:7-apache` and MariaDB containers and thought that everything should work.
 
-However, when I attempted to run the installer, the database hostname wasn't able to be resolved, so the instal failed.
+However when I attempted to run the installer, the database’s hostname wasn't able to be resolved, so the install failed.
 This seemed rather strange. 
 I didn't see anything strange in the console output (or so I thought) after I started the containers.
 
@@ -21,7 +21,7 @@ But on reviewing the configuration with a known working setup, nothing seemed ou
 == Step 1. Check the Container’s State
 
 So I decided to have a quick look at the container’s state, by running `docker-compose ps`.
-On doing so, I saw the following output; note the state of the database container (`Exit 1`).
+On doing so I saw the following output; note the state of the database container (`Exit 1`).
 
 [source,console,linenums,highlight=1..1]
 ----
@@ -32,7 +32,7 @@ core1000_webserver_1   docker-php-entrypoint apac ...   Up       0.0.0.0:80->80/
 ----
 
 While not _that_ clear or insightful, it means that the container wasn't able to start successfully, and had exited prematurely.
-However, as the webserver container’s state is set to `Up`, it is running properly.
+However as the webserver container’s state is set to `Up`, it is running properly.
 
 NOTE: To get the status of an individual container, add its name to the end of the command.
 For example: `docker-compose ps database`.
@@ -44,7 +44,7 @@ To do that, I needed to find out what the logs for the container contained.
 
 This is not so different from any other form of debugging.
 If you want to figure out what's going on, the best place to look are the logs.
-They contain information such as ports already being in use, server misconfigurations, and so on.
+They contain information such as ports already being in use, server misconfiguration, and so on.
 
 To have a look at the logs for the database container, used https://docs.docker.com/compose/reference/logs/[the `logs` command].
 Here’s an example of how to do so: 
