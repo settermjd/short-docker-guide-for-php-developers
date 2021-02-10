@@ -9,23 +9,22 @@ Let's get started!
 
 == Our Demo Application
 
-The demo application that we’ll use throughout this book, as I mentioned earlier, is based on the Mezzio framework.
-// Does this need to be expanded?
-It’s not that sophisticated, rather it’s a simplistic application that needs to interact with a database. 
-It’s a classic PHP application, if you will.
+The demo application that we’ll use throughout this book, as I mentioned earlier, is based on https://docs.mezzio.dev/mezzio/[the Mezzio framework].
+It’s not that sophisticated an application, rather it’s a simplistic one that needs to interact with a database. 
 It doesn’t make use of any logging, queueing, or caching services.
-I decided to keep the requirements rather modest, so that it didn’t get in the way of the book’s main purpose.
+A "_classic_" PHP application - old school even - if you will.
 
+I decided to keep the requirements rather modest, so that it didn’t distract from the book’s main purpose.
 That said, the application needs three core services for it to function:
 
-. A PHP runtime (I’ll be using PHP {php-runtime-version})
+. A PHP runtime. 
+  I’ll be using PHP {php-runtime-version}.
 . A webserver to serve the static content.
-  I've chosen NGINX over Apache.
+  I've chosen NGINX instead of Apache.
 . A database server to provide the dynamic information.
   For that, I've chosen PostgreSQL.
 
 There will also be a couple of PHP extensions required, which we’ll cover shortly.
-
 Given these needs, the setup will be composed of three containers:
 
 - One container for PHP
@@ -48,7 +47,7 @@ I’m doing this for two reasons:
 . To add a bit of http://docs.docker.oeynet.com/engine/security/security/[security] to the Docker setup. 
   The setup will allow only a minimum of access from the outside to the resources of the configuration.
 
-// TODO: Cover shared volumes, environment variables, healthcheck, labels, secrets, restart
+// TODO: Cover shared volumes healthcheck, labels, secrets
 Lastly, port 80 on the NGINX container will be connected to (http://docs.docker.oeynet.com/compose/compose-file/#expose[exposed]) port 8080 on the local machine (or host), so that the application can be used.
 
 == The Docker Compose Configuration
@@ -74,7 +73,14 @@ services:
     volumes:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./:/var/www/html
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/ping"]
+      interval: 60s
+      timeout: 3s
+      retries: 3
 ----
+
+=== The File Version
 
 The configuration starts off by specifying that we're using https://docs.docker.com/compose/compose-file/#/version-3[version 3 of the Docker Compose file format].
 It next sets up http://container-solutions.com/understanding-volumes-docker/[a persistable filesystem volume], which will be used later in the PostgreSQL container.
@@ -83,6 +89,8 @@ This is important to be aware of as, by default, filesystems in a Docker contain
 Given that, any changes made aren't permanent.
 When a container restarts, the original files will be restored and any new files will be removed.
 Not a great thing when working with databases, or other storage mechanisms.
+
+=== Service Configuration
 
 We next define an element called `services`.
 This element lists the definitions of the three containers which will make up our build, and start defining the NGINX container (or service).
@@ -127,6 +135,37 @@ include::https://raw.githubusercontent.com/settermjd/docker-for-local-developmen
 
 Finally, the current directory is mounted in the container at `/var/www/html`.
 This lets us develop locally on our host machine, yet use the code in the NGINX container.
+
+==== Health Checks
+
+The last configuration for this container is to add https://docs.docker.com/engine/reference/builder/#healthcheck[a health check].
+What these do is determine whether or a container s considered "healthy", or needs to be restarted.
+Healthchecks can be whatever you want them to be.
+In the case of this service, by default, unless you remove it, Mezzio applications come with a ping endpoint.
+
+This endpoint returns a JSON response containing the current timestamp.
+It’s a simplistic way of testing if the application is still working.
+So, the healthcheck will make a cURL request to that endpoint every 60 seconds, and allow for a 3 second timeout.
+If four attempts to the endpoint fail, then the container is considered “unhealthy” and will be restarted.
+
+Here’s how to test that a health check is working.
+
+----
+docker-compose ps
+----
+
+If you run the command above, in the output’s "State" column, you’ll see information about the health check.
+It will be one of three values:
+
+* `health: starting`: This is the initial status when a container with a healthcheck is started. 
+* `healthy`: The container is healthy
+* `unhealthy`: The container is not working correctly
+
+[INFO]
+====
+I’m not going into too much detail about healthchecks in this short guide. 
+If you’re keen to know more about them, check out https://docs.docker.com/engine/reference/builder/#healthcheck[the documentation] for more information.
+====
 
 == The PHP Container
 
@@ -185,10 +224,10 @@ Now, for the final piece, the PostgreSQL container.
 postgresql:
   image: postgres:13.1-alpine
   restart: always
-    environment:
-      POSTGRES_PASSWORD: project
-      POSTGRES_USER: user
-      POSTGRES_DB: project_db
+  environment:
+    POSTGRES_PASSWORD: project
+    POSTGRES_USER: user
+    POSTGRES_DB: project_db
   volumes:
     - ./data:/var/lib/postgresql/data
 ----
