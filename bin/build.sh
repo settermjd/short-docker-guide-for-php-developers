@@ -43,7 +43,7 @@ then
 fi
 
 # Generate the book
-docker run -it -v "${SOURCE_DIR}":/documents/ \
+sudo docker run -it -v "${SOURCE_DIR}":/documents/ \
     asciidoctor/docker-asciidoctor \
     asciidoctor-pdf \
     -a pdf-stylesdir="resources/themes/" \
