@@ -1,41 +1,40 @@
 = So How Do I Test and Debug My App?
 
-Docker makes it easy to build local development environments. 
-But, what about being able to build test environments and run acceptance, unit, functional, and other types of tests? 
-In this chapter, I'll show you how to implement testing using PHPUnit and Codeception in the configuration which we've built.
+// Notes: The chapter focuses more on Docker than Docker Compose. I’m not sure if this is still right, or if it wasn’t at the time. Perhaps this can be done with Docker Compose. Secondly, I’ve referenced replacing <container> with the container’s name, but not necessarily shown how to find the container’s name. Perhaps that was done in the first chapter. If so, I need to refer to it. If not, I should show, explicitly, how to do it in this chapter. Lastly, I didn’t show how to run PHPUnit tests, I just talked about it. Showing how to run them has to be done explicitly, along with creating more tests, and that users need to reference the container names as hostnames, and not local machine names.
 
-In xref:local-development-environment.adoc[the first part in this series] on developing web applications using Docker, we saw how to create a local development environment using Docker; one ideally suited to creating a Mezzio application (or any other kind of PHP-based web application).
-But, what we didn't cover was how to handle testing in a Docker-based environment.
+Docker makes it pretty trivial to build local development environments. 
+But what about running tests?
+How do you run acceptance, unit, functional, and other types of tests when the code and all of its dependencies are spread across one or more containers? 
+In this chapter, I'll show you how to do so using a combination of https://phpunit.de/[PHPUnit] and https://codeception.com/[Codeception] in the configuration which we've built.
 
-At first glance, this might not seem like all that much of a problem.
-However, the challenge I found, at least when I was first getting up to speed with Docker, was _"how do I run the tests"_?
-
-If I was using a Vagrant-based virtual machine, then I'd run `vagrant ssh` and run the tests as I normally would; whether by calling `phpunit` or `codecept`.
-Alternatively, I could execute the tests remotely in the virtual machine, instead of ssh'ing in first.
+At first glance, this might not seem that it should be all that much of a problem.
+After all, if we were using a Vagrant-based virtual machine, then we'd run `vagrant ssh` and run the tests as normal; whether by calling `phpunit` or `codecept`.
+Alternatively, we could execute the tests remotely in the virtual machine, instead of ssh'ing in first.
 
 But how do you run tests when working with Docker containers?
-
 After a bit of searching, I found that it's not that difficult.
 But you have to use the right combination of commands.
+
 At first I thought that `docker run` was how you ran them.
-Unfortunately, that booted up another instance of the container I'd specified, in a separate environment (and network), without any of the other containers being available.
+Unfortunately, that booted up another instance of a container, in a separate environment - and network, without any of the other containers being available.
 As a result the tests failed.
 
-Instead, what you need to do is to use `docker exec`. 
-This command connects to an existing, _running_, container, one which is in a network along with the other containers which we need. 
+Instead, what I found that you need to do is to use `docker exec`. 
+This command connects to _an existing, running, container_, one which is in a network along with the other containers which we need. 
 As a result it will be able to access the containers and execute the tests successfully.
 
-== Add Test Support
+== Let’s Add Test Support
 
-We didn't, explicitly, add test support in part one of this series, but most projects constructed with https://matthewsetter.com/zend-expressive-introduction[the Zend Skeleton installer]() will have some basic tests in place. 
-If you look in `test/AppTest/Action` you'll see `HomePageActionTest.php`.
+We didn't, _explicitly_, add test support in part one of this series. 
+But most projects constructed with the Mezzo Skeleton installer or PHP’s other frameworks, such as Laravel, will have some basic tests in place. 
+If you look in `test/AppTest/Handler` you'll see `HomePageHandlerTest.php`.
 
-This test class performs unit tests on the `HomePageAction` class. 
-To run it, we could call `vendor/bin/PHPUnit --configuration test/Unit/PHPUnit.xml`. 
+This test class performs unit tests on the `HomePageHandler` class. 
+To run it, we could call `vendor/bin/phpunit`. 
 Given it's quite elementary in what it's assessing, running it could be done locally, without needing the containers. 
-So, what about acceptance tests instead? 
-These tests need all the containers in our setup.
 
+So what about acceptance tests instead? 
+These tests need all the containers in our setup.
 PHPUnit doesn't have support for acceptance tests. 
 For that we're going to need a tool https://matthewsetter.com/testing-with-codeception[such as Codeception], which has built-in support for acceptance tests. 
 To make it available, run the following commands to both install it as a dependency and to create its core configuration files.
@@ -99,10 +98,10 @@ public function tryToTest(AcceptanceTester $I)
 
 This test will do the following:
 
-* Attempt to connect to the test site on the default route, `/`
-* Check that the response code is an HTTP 200 OK
-* Check that ‘Welcome to zend-expressive' is set as the contents of the page's h1 tag
-* Check that a link exists with the text of 'Middleware' and a href of 'https://github.com/laminas/laminas-stratigility'.
+. Attempt to connect to the test site on the default route, `/`
+. Check that the response code is an HTTP 200 OK
+. Check that ‘Welcome to zend-expressive' is set as the contents of the page's h1 tag
+. Check that a link exists with the text of 'Middleware' and a href of 'https://github.com/laminas/laminas-stratigility'.
 
 If all of these assertions pass, then the test will have succeeded.
 
@@ -110,37 +109,38 @@ If all of these assertions pass, then the test will have succeeded.
 
 Now that the test structure is in place, let's run it. 
 Gladly, it's not that different from running tests in either a virtual machine, or locally. 
-To do so, you need run the following command:
+To do so you need run the following command, substituting `<container>` for the name of your container:
 
 [source,console]
 ----
-docker exec -it healthmonitor_php_1 php vendor/bin/codecept run acceptance
+docker exec -it <container> php vendor/bin/codecept run acceptance
 ----
 
 That's a little long-winded. 
-So I'll explain what it does. 
-Using `exec` Docker will execute the command `php vendor/bin/codecept run acceptance` in the container called  `healthmonitor_php_1`. 
-If you're not familiar with https://docs.docker.com/engine/reference/commandline/exec/[the exec command], as the documentation says, it will:
+So let me explain what it does. 
+Using `exec` Docker will execute the command `php vendor/bin/codecept run acceptance` in the container named  `<container>`. 
+If you're not familiar with https://docs.docker.com/engine/reference/commandline/exec/[the exec command], it runs a command in a running container.
 
-> Run a command in a running container
+It's quite similar to running a command on a remote server using `ssh` or `vagrant ssh` using the `-c` or `--command` switches. 
 
-It's quite similar to running a command on a remote server with ssh or vagrant ssh using the `-c` or `--command` switches. 
-Don't make the mistake of using the `run` command, which will run a command in a new container. 
+[TIP] 
+====
+As a reminder, don't make the mistake of using the `run` command, which will run a command in a new container. 
 This will boot up a new instance of the PHP container, on a separate network, without any of the other containers which are needed to perform the tests.
+====
 
-== Add Tooling Support
+== Let’s Add Tooling Support
 
 And that's how to run tests for PHP-based web applications when you're developing and running them using a Docker local development environment. 
 But it's reasonable to expect that you might not remember the command, or make a mistake. 
 So let's quickly look at a few quick ways to automate the process.
 
-=== Using Make
+=== Use Make
 
-The first suggestion I have is to use https://en.wikipedia.org/wiki/Make_(software)[Make]. 
+The first suggestion I have is to use https://www.gnu.org/software/make/[Make]. 
 This is a technique I picked up while working with an excellent group of developers at http://www.refinery29.com[Refinery29]. 
-Create a new file, called Makefile, in the root directory of your project.
-
-In there, add the following:
+Create a new file, called `Makefile`, in the root directory of your project.
+In there, add the following, substituting `<container>` for your PHP container’s name:
 
 [source,makefile]
 ----
@@ -151,19 +151,19 @@ all: test
 test: unit functional acceptance
 
 PHPUnit:
-    docker exec -it healthmonitor_php_1 php vendor/bin/PHPUnit
+    docker exec -it <container> php vendor/bin/PHPUnit
 
 unit:
-    docker exec -it healthmonitor_php_1 php vendor/bin/codecept run unit
+    docker exec -it <container> php vendor/bin/codecept run unit
 
 acceptance:
-    docker exec -it healthmonitor_php_1 php vendor/bin/codecept run acceptance
+    docker exec -it <container> php vendor/bin/codecept run acceptance
 
 functional:
-    docker exec -it healthmonitor_php_1 php vendor/bin/codecept run functional
+    docker exec -it <container> php vendor/bin/codecept run functional
 ----
 
-What we've done is to create a series of targets, similar to what you do in other tools, such as Phing. 
+What we've done is to create a series of targets, similar to what you do in other tools, such as https://www.phing.info/[Phing]. 
 The first two, `all` and `.PHONY` setup the default target to run, if we don't request one specifically. 
 Hopefully, the final five should be fairly self-explanatory. 
 But if not, here's how they work, using the PHPUnit command as an example.
@@ -171,7 +171,7 @@ But if not, here's how they work, using the PHPUnit command as an example.
 [source]
 ----
 PHPUnit:
-    docker exec -it healthmonitor_php_1 php vendor/bin/PHPUnit
+    docker exec -it <container> php vendor/bin/PHPUnit
 ----
 
 The first line is the name of the target. 
@@ -181,9 +181,9 @@ Here, what we're doing is to create a command called `test` which will run the `
 
 To run any of them, in the terminal in the root directory of your project, we call `make` along with the target's name. 
 For example, if we wanted to run the unit target, we could then call `make unit`. 
-However, if we wanted to run all the tests, we could call `make` or `make test`.
+However if we wanted to run all the tests, we could call `make` or `make test`.
 
-=== Using Phing
+=== Use Phing
 
 Now what about something more recent, more PHP-specific? 
 What about https://www.phing.info[Phing,window=_blank]? 
