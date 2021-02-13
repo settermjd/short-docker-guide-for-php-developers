@@ -1,33 +1,44 @@
 = So How Do I Test and Debug My App?
 
-// Notes: The chapter focuses more on Docker than Docker Compose. I’m not sure if this is still right, or if it wasn’t at the time. Perhaps this can be done with Docker Compose. Secondly, I’ve referenced replacing <container> with the container’s name, but not necessarily shown how to find the container’s name. Perhaps that was done in the first chapter. If so, I need to refer to it. If not, I should show, explicitly, how to do it in this chapter. Lastly, I didn’t show how to run PHPUnit tests, I just talked about it. Showing how to run them has to be done explicitly, along with creating more tests, and that users need to reference the container names as hostnames, and not local machine names.
+//// 
+The chapter focuses more on Docker than Docker Compose. 
+I’m not sure if this is still right, or if it wasn’t at the time. 
+Perhaps this can be done with Docker Compose. 
+Secondly, I’ve referenced replacing <container> with the container’s name, but not necessarily shown how to find the container’s name. 
+Perhaps that was done in the first chapter. 
+If so, I need to refer to it. 
+If not, I should show, explicitly, how to do it in this chapter. 
+Lastly, I didn’t show how to run PHPUnit tests, I just talked about it. 
+Showing how to run them has to be done explicitly, along with creating more tests, and that users need to reference the container names as hostnames, and not local machine names.
+//// 
 
-Docker makes it pretty trivial to build local development environments. 
+Docker and Docker Compose make it pretty trivial to build local development environments. 
 But what about running tests?
-How do you run acceptance, unit, functional, and other types of tests when the code and all of its dependencies are spread across one or more containers? 
-In this chapter, I'll show you how to do so using a combination of https://phpunit.de/[PHPUnit] and https://codeception.com/[Codeception] in the configuration which we've built.
+How do you run unit, functional, acceptance, and other types of tests when the code and PHP runtime are in Docker containers and not on your local machine? 
+In this chapter, I'll show you how to augment the configuration which we’ve built so far, to run tests using both https://phpunit.de/[PHPUnit] and https://codeception.com/[Codeception].
 
 At first glance, this might not seem that it should be all that much of a problem.
-After all, if we were using a Vagrant-based virtual machine, then we'd run `vagrant ssh` and run the tests as normal; whether by calling `phpunit` or `codecept`.
+After all, if we were using a Vagrant-based virtual machine, then we'd likely run `vagrant ssh` to ssh into the virtual machine and then run the tests as normal, whether by calling `phpunit` or `codecept`.
 Alternatively, we could execute the tests remotely in the virtual machine, instead of ssh'ing in first.
 
 But how do you run tests when working with Docker containers?
-After a bit of searching, I found that it's not that difficult.
-But you have to use the right combination of commands.
+It’s not that difficult.
+However, you have to use the right combination of commands.
 
-At first I thought that `docker run` was how you ran them.
-Unfortunately, that booted up another instance of a container, in a separate environment - and network, without any of the other containers being available.
-As a result the tests failed.
+At first I thought that https://docs.docker.com/engine/reference/commandline/run/[`docker run`] was how you ran them.
+Unfortunately, that booted up another instance of a container - in a separate environment and network - without any of the other containers being available.
+Consequently, the tests failed.
 
-Instead, what I found that you need to do is to use `docker exec`. 
-This command connects to _an existing, running, container_, one which is in a network along with the other containers which we need. 
+Instead, you need to use https://docs.docker.com/engine/reference/commandline/exec/[`docker exec`]. 
+This command connects to _an existing, _running_, container_, in the network with the other containers in the configuration. 
 As a result it will be able to access the containers and execute the tests successfully.
 
 == Let’s Add Test Support
 
 We didn't, _explicitly_, add test support in part one of this series. 
-But most projects constructed with the Mezzo Skeleton installer or PHP’s other frameworks, such as Laravel, will have some basic tests in place. 
-If you look in `test/AppTest/Handler` you'll see `HomePageHandlerTest.php`.
+But most projects constructed with the Mezzio Skeleton installer (or PHP’s other frameworks, such as Laravel), will have some basic tests in place. 
+If you look in composer.json, you’ll see that PHPUnit is already a development dependency.
+And if you look in `test/AppTest/Handler` you'll see tests for the existing code, including `HomePageHandlerTest.php`.
 
 This test class performs unit tests on the `HomePageHandler` class. 
 To run it, we could call `vendor/bin/phpunit`. 
