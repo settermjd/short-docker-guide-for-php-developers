@@ -1,24 +1,30 @@
 = Conclusion
 
-And that's the end of the guide.
-We've covered how to containerise an application, how to build a deployment configuration using Docker Swarm, and deploy it to a non-development environment using Docker Stack.
-Yes, there have been quite a number of steps, and perhaps too many Docker commands—_my pet peeve with Docker_.
+And that's the end of this short guide.
+That said, for a short guide, we’ve still covered quite a bit.
+Here’s a quick recap of what we covered.
+We learned:
 
-*But, we're there!*
+* Some essential Docker terminology
+* How to install Docker
+* How to build a local development environment using _Docker Compose_
+* The essentials of how to debug that environment when things go wrong
+* How to run tests in a Docker Compose environment from the host machine
+* How to containerise an application and push it to a Docker registry
+* How to build a deployment configuration using Docker Swarm
+* How to deploy it to a non-development environment using _Docker Stack_
 
-I've taken some shortcuts to keep the post as short as possible.
-And there are so many things that I've not covered, such as:
+Sure, there have been quite a number of steps requiring, perhaps, too many different Docker commands—_my pet peeve with Docker_, but, we're done!
 
-* Creating a more sophisticated image or deployment configuration
-* Considered the security implications of the container we've deployed
-* Considered such requirements such as how to roll back a release
-* Seen how to update an existing release
-* Seen how to destroy an existing swarm
+I've taken some shortcuts to keep the guide as concise as possible.
+What’s more, there are so many things that I've not covered, including:
 
-However, for a simple example, it's sufficient.
-Ideally, I'd like to expand on this post at some stage.
-However, I didn't want to overwhelm you today.
+* How to create a more sophisticated image
+* How to create a more sophisticated deployment configuration
+* The security implications of the container we've created and deployed
+* How to roll back, update, and destroy a deployment
 
-I hope that you've been able to follow the instructions here successfully, and in the process learned a lot.
-If you've had any problems, want to know more, or want to suggest other ways to do it, add your feedback in the comments.
-
+However, for a short guide what we’ve covered is more than enough; wouldn’t you agree?
+I hope that you've been able to follow the guide successfully and in the process learned a lot.
+If you've had any problems, want to know more, or want to suggest other ways to do it, mailto:matthew@matthewsetter.com[please email me your feedback].
+I’m keen to ensure that there are no bugs in this guide and that it stays up to date.
